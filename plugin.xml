@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    id="org.stereolux.cordova.serial"
+    version="0.0.1">
+    <name>Serial</name>
+    <description>Cordova plugin to communicate with the android USB serial port</description>
+    <license>MIT</license>
+    <keywords>serial,arduino</keywords>
+
+    <!-- js module -->
+    <js-module src="www/serial.js" name="Serial">
+        <clobbers target="window.serial" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Serial">
+                <param name="android-package" value="org.stereolux.cordova.serial.Serial"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/org/stereolux/cordova/serial/Serial.java" target-dir="src/org/stereolux/cordova/serial" />
+    </platform>
+</plugin>
