@@ -14,7 +14,7 @@ var serial = {
             errorCallback,
             'Serial',
             'openSerial',
-            [{'opts': myOpts}]
+            [{'opts': opts}]
         );
     },
     write: function(data, successCallback, errorCallback) {
