@@ -10,7 +10,7 @@ The goal was to create a tablet app to control a [tesla coil](http://www.youtube
 ### Install it
 From the root folder of your cordova project, run :
 ```
-cordova plugin add https://github.com/xseignard/cordovarduino
+cordova plugin add https://github.com/stereolux/cordovarduino.git
 ```
 
 ### How to use it
