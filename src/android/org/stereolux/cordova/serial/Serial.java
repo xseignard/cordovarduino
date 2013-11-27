@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -24,19 +25,16 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 /**
  * Cordova plugin to communicate with the android serial port
  * @author Xavier Seignard <xavier.seignard@gmail.com>
- * @version 0.0.1
  */
 public class Serial extends CordovaPlugin {
     // logging tag
     private final String TAG = Serial.class.getSimpleName();
     // actions definitions
-    public static final String ACTION_REQUEST_PERMISSION = "requestPermission";
-    public static final String ACTION_OPEN = "openSerial";
-    public static final String ACTION_READ = "readSerial";
-    public static final String ACTION_WRITE = "writeSerial";
-    public static final String ACTION_CLOSE = "closeSerial";
-    // flag to check if the user has permitted to use the USB/serial port
-    private boolean permitted = false;
+    private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
+    private static final String ACTION_OPEN = "openSerial";
+    private static final String ACTION_READ = "readSerial";
+    private static final String ACTION_WRITE = "writeSerial";
+    private static final String ACTION_CLOSE = "closeSerial";
     // UsbManager instance to deal with permission and opening
     private UsbManager manager;
     // The current driver that handle the serial port
@@ -103,17 +101,15 @@ public class Serial extends CordovaPlugin {
                     driver = availableDrivers.get(0);
                     UsbDevice device = driver.getDevice();
                     // create the intent that will be used to get the permission
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent("USB_PERMISSION"), 0);
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent(UsbBroadcastReceiver.USB_PERMISSION), 0);
+                    // and a filter on the permission we ask
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(UsbBroadcastReceiver.USB_PERMISSION);
+                    // this broadcast receiver will handle the permission results
+                    UsbBroadcastReceiver usbReceiver = new UsbBroadcastReceiver(callbackContext, cordova.getActivity());
+                    cordova.getActivity().registerReceiver(usbReceiver, filter);
+                    // finally ask for the permission
                     manager.requestPermission(device, pendingIntent);
-                    if (manager.hasPermission(device)) {
-                        permitted = true;
-                        Log.d(TAG, "Permission to connect to the device was accepted!");
-                        callbackContext.success("Permission to connect to the device was accepted!");
-                    }
-                    else {
-                        Log.d(TAG, "Permission to connect to the device was denied!");
-                        callbackContext.error("Permission to connect to the device was denied!");
-                    }
                 }
                 else {
                     // no available drivers
@@ -132,41 +128,35 @@ public class Serial extends CordovaPlugin {
     private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                if (permitted) {
-                    UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-                    if (connection != null) {
-                        // get first port and open it
-                        port = driver.getPorts().get(0);
-                        try {
-                            port.open(connection);
-                            // get connection params or the default values
-                            int baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
-                            int dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
-                            int stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
-                            int parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
-                            port.setParameters(baudRate, dataBits, stopBits, parity);
-                        }
-                        catch (IOException  e) {
-                            // deal with error
-                            Log.d(TAG, e.getMessage());
-                            callbackContext.error(e.getMessage());
-                        }
-                        catch (JSONException e) {
-                            // deal with error
-                            Log.d(TAG, e.getMessage());
-                            callbackContext.error(e.getMessage());
-                        }
-                        Log.d(TAG, "Serial port opened!");
-                        callbackContext.success("Serial port opened!");
+                UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+                if (connection != null) {
+                    // get first port and open it
+                    port = driver.getPorts().get(0);
+                    try {
+                        port.open(connection);
+                        // get connection params or the default values
+                        int baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
+                        int dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
+                        int stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
+                        int parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+                        port.setParameters(baudRate, dataBits, stopBits, parity);
                     }
-                    else {
-                        Log.d(TAG, "Cannot connect to the device!");
-                        callbackContext.error("Cannot connect to the device!");
+                    catch (IOException  e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
                     }
+                    catch (JSONException e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
+                    }
+                    Log.d(TAG, "Serial port opened!");
+                    callbackContext.success("Serial port opened!");
                 }
                 else {
-                    Log.d(TAG, "Permission to connect to the device was denied!");
-                    callbackContext.error("Permission to connect to the device was denied!");
+                    Log.d(TAG, "Cannot connect to the device!");
+                    callbackContext.error("Cannot connect to the device!");
                 }
             }
         });
