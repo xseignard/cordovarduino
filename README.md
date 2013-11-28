@@ -11,6 +11,7 @@ The goal was to create a tablet app to control a [tesla coil](http://www.youtube
 From the root folder of your cordova project, run :
 ```
 cordova plugin add https://github.com/stereolux/cordovarduino.git
+cp plugins/org.stereolux.cordova.serial/lib/usbseriallibrary.jar platforms/android/libs
 ```
 
 ### How to use it
