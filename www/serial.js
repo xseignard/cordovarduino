@@ -1,13 +1,4 @@
 var serial = {
-    requestPermission: function(successCallback, errorCallback) {
-        cordova.exec(
-            successCallback,
-            errorCallback,
-            'Serial',
-            'requestPermission',
-            []
-        );
-    },
     open: function(opts, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
@@ -32,6 +23,15 @@ var serial = {
             errorCallback,
             'Serial',
             'readSerial',
+            []
+        );
+    },
+    suscribe: function(successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'Serial',
+            'suscribe',
             []
         );
     },

@@ -11,17 +11,13 @@ The goal was to create a tablet app to control a [tesla coil](http://www.youtube
 From the root folder of your cordova project, run :
 ```
 cordova plugin add https://github.com/stereolux/cordovarduino.git
-cp plugins/org.stereolux.cordova.serial/lib/usbseriallibrary.jar platforms/android/libs
+cp plugins/org.stereolux.cordova.serial/lib/physicaloidlibrary.jar platforms/android/libs
 ```
 
 ### How to use it
-Thanks to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library, you can communicate with CDC, FTDI, Arduino and other devices. Here is the Cordova plugin API.
+Thanks to the [Physicaloid](https://github.com/ksksue/PhysicaloidLibrary) library, you can communicate with CDC, FTDI, Arduino and other devices. Here is the Cordova plugin API.
 
-Because you're polite, first request the permission to use the serial port to the system:
-```js
-serial.requestPermission(function success(), function error());
-```
-You can now open the serial port:
+You can open the serial port with:
 ```js
 serial.open(opts, function success(), function error());
 ```
@@ -34,8 +30,8 @@ serial.open(opts, function success(), function error());
 
 You're now able to read and write:
 ```js
-serial.write(function success(), function error());
-serial.read(data, function success(), function error());
+serial.write(data, function success(), function error());
+serial.read(function success(), function error());
 ```
 `data` is the string representation to be written to the serial port.
 
@@ -53,21 +49,16 @@ var errorCallback = function(message) {
     alert('Error: ' + message);
 };
 
-serial.requestPermission(
-	function(successMessage) {
-    	serial.open(
-        	{baudRate: 9600},
+serial.open(
+   	{baudRate: 9600},
+    function(successMessage) {
+        serial.write(
+            '1',
             function(successMessage) {
-        		serial.write(
-                	'1',
-                    function(successMessage) {
-                    	alert(successMessage);
-                    },
-                    errorCallback
-        		);
-        	},
-        	errorCallback
-    	);
+                alert(successMessage);
+            },
+            errorCallback
+        );
     },
     errorCallback
 );

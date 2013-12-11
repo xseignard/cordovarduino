@@ -3,7 +3,11 @@
 	<classpathentry kind="src" path="src/android"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/cordova-3.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/usbseriallibrary.jar"/>
 	<classpathentry kind="lib" path="lib/android-12.jar"/>
+	<classpathentry kind="lib" path="lib/physicaloidlibrary.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.physicaloid.com/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
