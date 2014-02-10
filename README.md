@@ -34,8 +34,8 @@ serial.open(opts, function success(), function error());
 
 You're now able to read and write:
 ```js
-serial.write(function success(), function error());
-serial.read(data, function success(), function error());
+serial.write(data, function success(), function error());
+serial.read(function success(), function error());
 ```
 `data` is the string representation to be written to the serial port.
 
