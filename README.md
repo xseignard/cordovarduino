@@ -5,7 +5,7 @@ Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communi
 It's a **work in progress** : Android to Arduino works, Arduino to Android is not yet supported
 
 ### Context
-This work was made during an art residency hosted at the [Stereolux, Laboratoire Arts et Technologies](http://www.stereolux.org/laboratoire-arts-et-technologies/archives) with [Coup de foudre](https://www.facebook.com/coup.defoudre.716) and [Xavier Seignard](http://drangies.fr).
+This work was made during an art residency hosted at the [Stereolux, Laboratoire Arts et Technologies](http://www.stereolux.org/laboratoire-arts-et-technologies) with [Coup de foudre](https://www.facebook.com/coup.defoudre.716) and [Xavier Seignard](http://drangies.fr).
 
 The goal was to create a tablet app to control a [tesla coil](http://www.youtube.com/watch?v=X2elQ6RR7lw) with an [Arduino](http://arduino.cc). The chosen technology ([Cordova](http://cordova.io)) had no capabilities to handle such serial over usb communication.
 
