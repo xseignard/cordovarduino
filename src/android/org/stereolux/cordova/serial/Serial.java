@@ -1,9 +1,11 @@
 package org.stereolux.cordova.serial;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +23,7 @@ import android.util.Log;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.util.SerialInputOutputManager.Listener;
 
 /**
  * Cordova plugin to communicate with the android serial port
@@ -41,6 +44,13 @@ public class Serial extends CordovaPlugin {
     private UsbSerialDriver driver;
     // The serial port that will be used in this plugin
     private UsbSerialPort port;
+    
+    private static final int READ_WAIT_MILLIS = 200;
+    private static final int BUFSIZ = 4096;
+
+    private final ByteBuffer mReadBuffer = ByteBuffer.allocate(BUFSIZ);
+    private final ByteBuffer mWriteBuffer = ByteBuffer.allocate(BUFSIZ);
+    
     
     /**
      * Overridden execute method
@@ -191,10 +201,21 @@ public class Serial extends CordovaPlugin {
     private void readSerial(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                try {
-                    byte buffer[] = new byte[16];
-                    int numBytesRead = port.read(buffer, 1000);
-                    callbackContext.success(numBytesRead);
+                try {	
+                    int len = port.read(mReadBuffer.array(), READ_WAIT_MILLIS);
+                    // Whatever happens, we send an "OK" result, up to the
+                    // receiver to check that len > 0
+                    PluginResult.Status status = PluginResult.Status.OK;
+                    if (len > 0) {
+                        Log.d(TAG, "Read data len=" + len);
+                        final byte[] data = new byte[len];
+                        mReadBuffer.get(data, 0, len);
+                        mReadBuffer.clear();
+                        callbackContext.sendPluginResult(new PluginResult(status,data));
+                	} else {
+                		final byte[] data = new byte[0];
+                		callbackContext.sendPluginResult(new PluginResult(status, data));
+                	}
                 }
                 catch (IOException e) {
                     // deal with error
