@@ -234,7 +234,9 @@ public class Serial extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 try {
-                    port.close();
+                	// Make sure we don't die if we try to close an non-existing port!
+                	if (port != null)
+                		port.close();
                     callbackContext.success();
                 } catch (IOException e) {
                     // deal with error
