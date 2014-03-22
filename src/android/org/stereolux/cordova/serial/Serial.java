@@ -50,8 +50,7 @@ public class Serial extends CordovaPlugin {
 
     private final ByteBuffer mReadBuffer = ByteBuffer.allocate(BUFSIZ);
     private final ByteBuffer mWriteBuffer = ByteBuffer.allocate(BUFSIZ);
-    
-    
+        
     /**
      * Overridden execute method
      * @param action the string representation of the action to execute
@@ -180,8 +179,11 @@ public class Serial extends CordovaPlugin {
     private void writeSerial(final String data, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                Log.d(TAG, data);
+            	if (port == null) {
+            		callbackContext.error("writing a closed port");
+            	} else
                 try {
+                    Log.d(TAG, data);
                     byte[] buffer = data.getBytes();
                     port.write(buffer, 1000);
                     callbackContext.success();
@@ -201,7 +203,10 @@ public class Serial extends CordovaPlugin {
     private void readSerial(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                try {	
+            	if (port == null) {
+            		callbackContext.error("reading a closed port");
+            	} else
+                try {
                     int len = port.read(mReadBuffer.array(), READ_WAIT_MILLIS);
                     // Whatever happens, we send an "OK" result, up to the
                     // receiver to check that len > 0
@@ -237,6 +242,7 @@ public class Serial extends CordovaPlugin {
                 	// Make sure we don't die if we try to close an non-existing port!
                 	if (port != null)
                 		port.close();
+                	port = null;
                     callbackContext.success();
                 } catch (IOException e) {
                     // deal with error
