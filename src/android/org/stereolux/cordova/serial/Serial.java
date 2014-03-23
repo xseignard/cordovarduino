@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +23,6 @@ import android.util.Log;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
-import com.hoho.android.usbserial.util.SerialInputOutputManager.Listener;
 
 /**
  * Cordova plugin to communicate with the android serial port
@@ -49,8 +48,7 @@ public class Serial extends CordovaPlugin {
     private static final int BUFSIZ = 4096;
 
     private final ByteBuffer mReadBuffer = ByteBuffer.allocate(BUFSIZ);
-    private final ByteBuffer mWriteBuffer = ByteBuffer.allocate(BUFSIZ);
-        
+
     /**
      * Overridden execute method
      * @param action the string representation of the action to execute
@@ -179,18 +177,21 @@ public class Serial extends CordovaPlugin {
     private void writeSerial(final String data, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-            	if (port == null) {
-            		callbackContext.error("writing a closed port");
-            	} else
-                try {
-                    Log.d(TAG, data);
-                    byte[] buffer = data.getBytes();
-                    port.write(buffer, 1000);
-                    callbackContext.success();
-                } catch (IOException e) {
-                    // deal with error
-                    Log.d(TAG, e.getMessage());
-                    callbackContext.error(e.getMessage());
+                if (port == null) {
+                    callbackContext.error("writing a closed port");
+                }
+                else {
+                    try {
+                        Log.d(TAG, data);
+                        byte[] buffer = data.getBytes();
+                        port.write(buffer, 1000);
+                        callbackContext.success();
+                    }
+                    catch (IOException e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
+                    }
                 }
             }
         });
@@ -203,9 +204,9 @@ public class Serial extends CordovaPlugin {
     private void readSerial(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-            	if (port == null) {
-            		callbackContext.error("reading a closed port");
-            	} else
+                if (port == null) {
+                    callbackContext.error("reading a closed port");
+                } else
                 try {
                     int len = port.read(mReadBuffer.array(), READ_WAIT_MILLIS);
                     // Whatever happens, we send an "OK" result, up to the
@@ -217,10 +218,10 @@ public class Serial extends CordovaPlugin {
                         mReadBuffer.get(data, 0, len);
                         mReadBuffer.clear();
                         callbackContext.sendPluginResult(new PluginResult(status,data));
-                	} else {
-                		final byte[] data = new byte[0];
-                		callbackContext.sendPluginResult(new PluginResult(status, data));
-                	}
+                    } else {
+                        final byte[] data = new byte[0];
+                        callbackContext.sendPluginResult(new PluginResult(status, data));
+                    }
                 }
                 catch (IOException e) {
                     // deal with error
@@ -239,10 +240,11 @@ public class Serial extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 try {
-                	// Make sure we don't die if we try to close an non-existing port!
-                	if (port != null)
-                		port.close();
-                	port = null;
+                    // Make sure we don't die if we try to close an non-existing port!
+                    if (port != null) {
+                        port.close();
+                    }
+                    port = null;
                     callbackContext.success();
                 } catch (IOException e) {
                     // deal with error
