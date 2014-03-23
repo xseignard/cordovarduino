@@ -2,7 +2,14 @@
 
 Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
 
-It's a **work in progress** : Android to Arduino works, Arduino to Android is not yet supported
+It's a **work in progress** : Android to Arduino works, Arduino to Android now works.
+
+
+## Change log
+
+2014.03: Ed. Lafargue
+         Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data
+         in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
 
 ### Context
 This work was made during an art residency hosted at the [Stereolux, Laboratoire Arts et Technologies](http://www.stereolux.org/laboratoire-arts-et-technologies) with [Coup de foudre](https://www.facebook.com/coup.defoudre.716) and [Xavier Seignard](http://drangies.fr).
@@ -37,9 +44,10 @@ serial.open(opts, function success(), function error());
 You're now able to read and write:
 ```js
 serial.write(data, function success(), function error());
-serial.read(function success(), function error());
+serial.read(function success(buffer), function error());
 ```
 `data` is the string representation to be written to the serial port.
+`buffer` is a JavaScript ArrayBuffer containing the data that was just read.
 
 And finally close the port:
 ```js
