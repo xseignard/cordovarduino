@@ -1,6 +1,8 @@
 package org.stereolux.cordova.serial;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -19,10 +21,15 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
+import android.util.Base64;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
+
+import com.hoho.android.usbserial.util.SerialInputOutputManager;
+import com.hoho.android.usbserial.util.HexDump;
+
 
 /**
  * Cordova plugin to communicate with the android serial port
@@ -37,6 +44,8 @@ public class Serial extends CordovaPlugin {
     private static final String ACTION_READ = "readSerial";
     private static final String ACTION_WRITE = "writeSerial";
     private static final String ACTION_CLOSE = "closeSerial";
+    private static final String ACTION_READ_CALLBACK = "registerReadCallback";
+
     // UsbManager instance to deal with permission and opening
     private UsbManager manager;
     // The current driver that handle the serial port
@@ -48,6 +57,37 @@ public class Serial extends CordovaPlugin {
     private static final int BUFSIZ = 4096;
 
     private final ByteBuffer mReadBuffer = ByteBuffer.allocate(BUFSIZ);
+
+    // Connection info
+    int baudRate;
+    int dataBits;
+    int stopBits;
+    int parity;
+    boolean setDTR;
+
+    boolean portPaused;
+
+    private CallbackContext readCallback;
+
+
+    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+    private SerialInputOutputManager mSerialIoManager;
+
+    private final SerialInputOutputManager.Listener mListener =
+            new SerialInputOutputManager.Listener() {
+
+                @Override
+                public void onRunError(Exception e) {
+                    Log.d(TAG, "Runner stopped.");
+                }
+
+                @Override
+                public void onNewData(final byte[] data) {
+                    Serial.this.updateReceivedData(data);
+                }
+            };
+
+
 
     /**
      * Overridden execute method
@@ -86,6 +126,11 @@ public class Serial extends CordovaPlugin {
         // close the serial port
         else if (ACTION_CLOSE.equals(action)) {
             closeSerial(callbackContext);
+            return true;
+        }
+        // Register read callback
+        else if (ACTION_READ_CALLBACK.equals(action)) {
+            registerReadCallback(callbackContext);
             return true;
         }
         // the action doesn't exist
@@ -127,29 +172,35 @@ public class Serial extends CordovaPlugin {
         });
     }
 
+
     /**
-     * Open the serial port
+     * Open the serial port from Cordova
      * @param opts a {@link JSONObject} containing the connection paramters
      * @param callbackContext the cordova {@link CallbackContext}
      */
     private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
+
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
+
                 UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+
                 if (connection != null) {
                     // get first port and open it
                     port = driver.getPorts().get(0);
+
                     try {
-                        port.open(connection);
+
                         // get connection params or the default values
-                        int baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
-                        int dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
-                        int stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
-                        int parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+                        baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
+                        dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
+                        stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
+                        parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+                        setDTR = opts.has("dtr") && opts.getBoolean("dtr");
+
+                        port.open(connection);
                         port.setParameters(baudRate, dataBits, stopBits, parity);
-                        if (opts.has("dtr") && opts.getBoolean("dtr")) {
-                            port.setDTR(true);
-                        }
+                        if (setDTR) port.setDTR(true);
                     }
                     catch (IOException  e) {
                         // deal with error
@@ -161,6 +212,7 @@ public class Serial extends CordovaPlugin {
                         Log.d(TAG, e.getMessage());
                         callbackContext.error(e.getMessage());
                     }
+
                     Log.d(TAG, "Serial port opened!");
                     callbackContext.success("Serial port opened!");
                 }
@@ -168,6 +220,7 @@ public class Serial extends CordovaPlugin {
                     Log.d(TAG, "Cannot connect to the device!");
                     callbackContext.error("Cannot connect to the device!");
                 }
+                onDeviceStateChange();
             }
         });
     }
@@ -254,7 +307,174 @@ public class Serial extends CordovaPlugin {
                     Log.d(TAG, e.getMessage());
                     callbackContext.error(e.getMessage());
                 }
+                onDeviceStateChange();
             }
         });
     }
+
+
+    private void stopIoManager() {
+        if (mSerialIoManager != null) {
+            Log.i(TAG, "Stopping io manager ..");
+            mSerialIoManager.stop();
+            mSerialIoManager = null;
+        }
+    }
+
+    private void startIoManager() {
+        if (driver != null) {
+            Log.i(TAG, "Starting io manager ..");
+            mSerialIoManager = new SerialInputOutputManager(port, mListener);
+            mExecutor.submit(mSerialIoManager);
+        }
+    }
+
+    private void onDeviceStateChange() {
+        stopIoManager();
+        startIoManager();
+    }
+
+    /**
+     * Dispatch read data to javascript
+     * @param data
+     */
+    private void updateReceivedData(byte[] data) {
+
+        if( readCallback != null ) {
+
+            // final String message = "Read " + data.length + " bytes: \n" + HexDump.dumpHexString(data) + "\n\n";
+            // Log.d(TAG, message);
+
+            JSONObject returnObj = new JSONObject();
+            addProperty(returnObj, "length", data.length);
+            addPropertyBytes(returnObj, "data", data);
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
+            result.setKeepCallback(true);
+            readCallback.sendPluginResult(result);
+        }
+
+    }
+
+
+    /**
+     * Register callback for read data
+     * @param callbackContext the cordova {@link CallbackContext}
+     */
+    private void registerReadCallback(final CallbackContext callbackContext) {
+
+        Log.d(TAG, "Registering  Callback");
+
+
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                Log.d(TAG, "Registering Read Callback");
+                readCallback = callbackContext;
+
+                JSONObject returnObj = new JSONObject();
+                addProperty(returnObj, "registerReadCallback", "true");
+
+                //Keep the callback
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, returnObj);
+                pluginResult.setKeepCallback(true);
+                callbackContext.sendPluginResult(pluginResult);
+
+            }
+        });
+
+    }
+
+
+
+    @Override
+    public void onPause(boolean multitasking) {
+
+        stopIoManager();
+        if (port != null) {
+            try {
+                port.close();
+            } catch (IOException e) {
+                // Ignore.
+            }
+            portPaused = true;
+            port = null;
+        }
+
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+
+        Log.d(TAG, "Resumed, driver=" + driver);
+        if (driver == null && portPaused) {
+            Log.d(TAG, "No serial device to resume.");
+        } else {
+
+            UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+
+            if (connection != null) {
+                // get first port and open it
+                port = driver.getPorts().get(0);
+
+                try {
+
+                    port.open(connection);
+                    port.setParameters(baudRate, dataBits, stopBits, parity);
+                    if (setDTR) port.setDTR(true);
+                }
+                catch (IOException  e) {
+                    // deal with error
+                    Log.d(TAG, e.getMessage());
+                }
+                Log.d(TAG, "Serial port opened!");
+            }
+            else {
+                Log.d(TAG, "Cannot connect to the device!");
+            }
+
+            Log.d(TAG, "Serial device: " + driver.getClass().getSimpleName());
+        }
+        onDeviceStateChange();
+    }
+
+
+
+    /**
+     * The final call you receive before your activity is destroyed.
+     */
+    @Override
+    public void onDestroy() {
+
+        Log.d(TAG, "Destroy, port=" + port);
+
+        if(port != null)
+        try {
+            port.close();
+        }
+        catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        }
+
+        onDeviceStateChange();
+
+    }
+
+
+    private void addProperty(JSONObject obj, String key, Object value)
+    {
+        try
+        {
+            obj.put(key, value);
+        }
+        catch (JSONException e){}
+    }
+
+    private void addPropertyBytes(JSONObject obj, String key, byte[] bytes)
+    {
+        String string = Base64.encodeToString(bytes, Base64.NO_WRAP);
+        addProperty(obj, key, string);
+    }
+
+
 }
