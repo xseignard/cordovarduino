@@ -338,10 +338,7 @@ public class Serial extends CordovaPlugin {
      */
     private void updateReceivedData(byte[] data) {
         if( readCallback != null ) {
-            JSONObject returnObj = new JSONObject();
-            addProperty(returnObj, "length", data.length);
-            addPropertyBytes(returnObj, "data", data);
-            PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, data);
             result.setKeepCallback(true);
             readCallback.sendPluginResult(result);
         }
