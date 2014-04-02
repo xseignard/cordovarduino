@@ -28,12 +28,19 @@ import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
-import com.hoho.android.usbserial.util.HexDump;
 
 
 /**
  * Cordova plugin to communicate with the android serial port
  * @author Xavier Seignard <xavier.seignard@gmail.com>
+ */
+/**
+ * @author bigx
+ *
+ */
+/**
+ * @author bigx
+ *
  */
 public class Serial extends CordovaPlugin {
     // logging tag
@@ -52,42 +59,34 @@ public class Serial extends CordovaPlugin {
     private UsbSerialDriver driver;
     // The serial port that will be used in this plugin
     private UsbSerialPort port;
-    
+    // Read buffer, and read params
     private static final int READ_WAIT_MILLIS = 200;
     private static final int BUFSIZ = 4096;
-
     private final ByteBuffer mReadBuffer = ByteBuffer.allocate(BUFSIZ);
-
     // Connection info
-    int baudRate;
-    int dataBits;
-    int stopBits;
-    int parity;
-    boolean setDTR;
-
-    boolean portPaused;
-
+    private int baudRate;
+    private int dataBits;
+    private int stopBits;
+    private int parity;
+    private boolean setDTR;
+    // check whether or not the port is paused
+    private boolean portPaused;
+    // callback that will be used to send back data to the cordova app
     private CallbackContext readCallback;
-
-
+    // I/O manager to handle new incoming serial data
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
     private SerialInputOutputManager mSerialIoManager;
-
     private final SerialInputOutputManager.Listener mListener =
             new SerialInputOutputManager.Listener() {
-
                 @Override
                 public void onRunError(Exception e) {
                     Log.d(TAG, "Runner stopped.");
                 }
-
                 @Override
                 public void onNewData(final byte[] data) {
                     Serial.this.updateReceivedData(data);
                 }
             };
-
-
 
     /**
      * Overridden execute method
@@ -172,25 +171,19 @@ public class Serial extends CordovaPlugin {
         });
     }
 
-
     /**
      * Open the serial port from Cordova
      * @param opts a {@link JSONObject} containing the connection paramters
      * @param callbackContext the cordova {@link CallbackContext}
      */
     private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
-
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-
                 UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-
                 if (connection != null) {
                     // get first port and open it
                     port = driver.getPorts().get(0);
-
                     try {
-
                         // get connection params or the default values
                         baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
                         dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
@@ -234,7 +227,7 @@ public class Serial extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 if (port == null) {
-                    callbackContext.error("writing a closed port");
+                    callbackContext.error("Writing a closed port.");
                 }
                 else {
                     try {
@@ -261,28 +254,31 @@ public class Serial extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 if (port == null) {
-                    callbackContext.error("reading a closed port");
-                } else
-                try {
-                    int len = port.read(mReadBuffer.array(), READ_WAIT_MILLIS);
-                    // Whatever happens, we send an "OK" result, up to the
-                    // receiver to check that len > 0
-                    PluginResult.Status status = PluginResult.Status.OK;
-                    if (len > 0) {
-                        Log.d(TAG, "Read data len=" + len);
-                        final byte[] data = new byte[len];
-                        mReadBuffer.get(data, 0, len);
-                        mReadBuffer.clear();
-                        callbackContext.sendPluginResult(new PluginResult(status,data));
-                    } else {
-                        final byte[] data = new byte[0];
-                        callbackContext.sendPluginResult(new PluginResult(status, data));
+                    callbackContext.error("Reading a closed port.");
+                } 
+                else {
+                    try {
+                        int len = port.read(mReadBuffer.array(), READ_WAIT_MILLIS);
+                        // Whatever happens, we send an "OK" result, up to the
+                        // receiver to check that len > 0
+                        PluginResult.Status status = PluginResult.Status.OK;
+                        if (len > 0) {
+                            Log.d(TAG, "Read data len=" + len);
+                            final byte[] data = new byte[len];
+                            mReadBuffer.get(data, 0, len);
+                            mReadBuffer.clear();
+                            callbackContext.sendPluginResult(new PluginResult(status,data));
+                        }
+                        else {
+                            final byte[] data = new byte[0];
+                            callbackContext.sendPluginResult(new PluginResult(status, data));
+                        }
                     }
-                }
-                catch (IOException e) {
-                    // deal with error
-                    Log.d(TAG, e.getMessage());
-                    callbackContext.error(e.getMessage());
+                    catch (IOException e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
+                    }
                 }
             }
         });
@@ -302,7 +298,8 @@ public class Serial extends CordovaPlugin {
                     }
                     port = null;
                     callbackContext.success();
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     // deal with error
                     Log.d(TAG, e.getMessage());
                     callbackContext.error(e.getMessage());
@@ -315,7 +312,7 @@ public class Serial extends CordovaPlugin {
 
     private void stopIoManager() {
         if (mSerialIoManager != null) {
-            Log.i(TAG, "Stopping io manager ..");
+            Log.i(TAG, "Stopping io manager.");
             mSerialIoManager.stop();
             mSerialIoManager = null;
         }
@@ -323,7 +320,7 @@ public class Serial extends CordovaPlugin {
 
     private void startIoManager() {
         if (driver != null) {
-            Log.i(TAG, "Starting io manager ..");
+            Log.i(TAG, "Starting io manager.");
             mSerialIoManager = new SerialInputOutputManager(port, mListener);
             mExecutor.submit(mSerialIoManager);
         }
@@ -336,89 +333,74 @@ public class Serial extends CordovaPlugin {
 
     /**
      * Dispatch read data to javascript
-     * @param data
+     * @param data the array of bytes to dispatch
      */
     private void updateReceivedData(byte[] data) {
-
         if( readCallback != null ) {
-
-            // final String message = "Read " + data.length + " bytes: \n" + HexDump.dumpHexString(data) + "\n\n";
-            // Log.d(TAG, message);
-
             JSONObject returnObj = new JSONObject();
             addProperty(returnObj, "length", data.length);
             addPropertyBytes(returnObj, "data", data);
-
             PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
             result.setKeepCallback(true);
             readCallback.sendPluginResult(result);
         }
-
     }
-
 
     /**
      * Register callback for read data
      * @param callbackContext the cordova {@link CallbackContext}
      */
     private void registerReadCallback(final CallbackContext callbackContext) {
-
-        Log.d(TAG, "Registering  Callback");
-
-
+        Log.d(TAG, "Registering callback");
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-
                 Log.d(TAG, "Registering Read Callback");
                 readCallback = callbackContext;
-
                 JSONObject returnObj = new JSONObject();
                 addProperty(returnObj, "registerReadCallback", "true");
-
-                //Keep the callback
+                // Keep the callback
                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, returnObj);
                 pluginResult.setKeepCallback(true);
                 callbackContext.sendPluginResult(pluginResult);
-
             }
         });
-
     }
 
-
-
+    /** 
+     * Paused activity handler
+     * @see org.apache.cordova.CordovaPlugin#onPause(boolean)
+     */
     @Override
     public void onPause(boolean multitasking) {
-
         stopIoManager();
         if (port != null) {
             try {
                 port.close();
             } catch (IOException e) {
-                // Ignore.
+                // Ignore
             }
             portPaused = true;
             port = null;
         }
-
     }
 
+    
+    /**
+     * Resumed activity handler
+     * @see org.apache.cordova.CordovaPlugin#onResume(boolean)
+     */
     @Override
     public void onResume(boolean multitasking) {
-
         Log.d(TAG, "Resumed, driver=" + driver);
         if (driver == null && portPaused) {
             Log.d(TAG, "No serial device to resume.");
-        } else {
-
+        } 
+        else {
             UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-
             if (connection != null) {
                 // get first port and open it
                 port = driver.getPorts().get(0);
-
                 try {
-
                     port.open(connection);
                     port.setParameters(baudRate, dataBits, stopBits, parity);
                     if (setDTR) port.setDTR(true);
@@ -432,22 +414,19 @@ public class Serial extends CordovaPlugin {
             else {
                 Log.d(TAG, "Cannot connect to the device!");
             }
-
             Log.d(TAG, "Serial device: " + driver.getClass().getSimpleName());
         }
         onDeviceStateChange();
     }
 
 
-
     /**
-     * The final call you receive before your activity is destroyed.
+     * Destroy activity handler
+     * @see org.apache.cordova.CordovaPlugin#onDestroy()
      */
     @Override
     public void onDestroy() {
-
         Log.d(TAG, "Destroy, port=" + port);
-
         if(port != null)
         try {
             port.close();
@@ -455,26 +434,30 @@ public class Serial extends CordovaPlugin {
         catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
-
         onDeviceStateChange();
-
     }
 
-
-    private void addProperty(JSONObject obj, String key, Object value)
-    {
-        try
-        {
+    /**
+     * Utility method to add some properties to a {@link JSONObject}
+     * @param obj the json object where to add the new property
+     * @param key property key
+     * @param value value of the property
+     */
+    private void addProperty(JSONObject obj, String key, Object value) {
+        try {
             obj.put(key, value);
         }
         catch (JSONException e){}
     }
 
-    private void addPropertyBytes(JSONObject obj, String key, byte[] bytes)
-    {
+    /**
+     * Utility method to add some properties to a {@link JSONObject}
+     * @param obj the json object where to add the new property
+     * @param key property key
+     * @param bytes the array of byte to add as value to the {@link JSONObject}
+     */
+    private void addPropertyBytes(JSONObject obj, String key, byte[] bytes) {
         String string = Base64.encodeToString(bytes, Base64.NO_WRAP);
-        addProperty(obj, key, string);
+        this.addProperty(obj, key, string);
     }
-
-
 }
