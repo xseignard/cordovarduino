@@ -34,14 +34,6 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
  * Cordova plugin to communicate with the android serial port
  * @author Xavier Seignard <xavier.seignard@gmail.com>
  */
-/**
- * @author bigx
- *
- */
-/**
- * @author bigx
- *
- */
 public class Serial extends CordovaPlugin {
     // logging tag
     private final String TAG = Serial.class.getSimpleName();
@@ -310,6 +302,9 @@ public class Serial extends CordovaPlugin {
     }
 
 
+    /**
+     * Stop observing serial connection
+     */
     private void stopIoManager() {
         if (mSerialIoManager != null) {
             Log.i(TAG, "Stopping io manager.");
@@ -318,6 +313,9 @@ public class Serial extends CordovaPlugin {
         }
     }
 
+    /**
+     * Observe serial connection
+     */
     private void startIoManager() {
         if (driver != null) {
             Log.i(TAG, "Starting io manager.");
@@ -326,6 +324,9 @@ public class Serial extends CordovaPlugin {
         }
     }
 
+    /**
+     * Restart the observation of the serial connection
+     */
     private void onDeviceStateChange() {
         stopIoManager();
         startIoManager();
@@ -427,12 +428,13 @@ public class Serial extends CordovaPlugin {
     @Override
     public void onDestroy() {
         Log.d(TAG, "Destroy, port=" + port);
-        if(port != null)
-        try {
-            port.close();
-        }
-        catch (IOException e) {
-            Log.d(TAG, e.getMessage());
+        if(port != null) {
+            try {
+                port.close();
+            }
+            catch (IOException e) {
+                Log.d(TAG, e.getMessage());
+            }
         }
         onDeviceStateChange();
     }
