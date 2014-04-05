@@ -6,7 +6,9 @@ It's a **work in progress** : Android to Arduino works, Arduino to Android now w
 
 
 ## Change log
-
+2014.04: [Derek K](https://github.com/etx)
+         Implemented registerReadCallback for evented reading and Android onPause/onResume
+         
 2014.03: Ed. Lafargue
          Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data
          in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
@@ -47,6 +49,20 @@ serial.read(function success(buffer), function error());
 `data` is the string representation to be written to the serial port.
 `buffer` is a JavaScript ArrayBuffer containing the data that was just read.
 
+Register a callback that will be invoked when the driver reads incoming data from your serial device. The success callback function will recieve an ArrayBuffer filled with the data read from serial:
+```js
+serial.registerReadCallback(
+	function success(data){
+		var view = new Uint8Array(data);
+		console.log(view);
+	},
+	function error(){
+		new Error("Failed to register read callback");
+	});
+```
+
+
+
 And finally close the port:
 ```js
 serial.close(function success(), function error())
@@ -59,7 +75,7 @@ A callback-ish example.
 ```js
 var errorCallback = function(message) {
     alert('Error: ' + message);
-};
+};```
 
 serial.requestPermission(
 	function(successMessage) {
