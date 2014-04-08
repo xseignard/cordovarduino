@@ -13,7 +13,7 @@ It's a **work in progress** : Android to Arduino works, Arduino to Android now w
          Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data
          in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
 
-2013.11: Xavier Seignard
+2013.11: [Xavier Seignard](https://github.com/xseignard)
 	First implementation
 
 ### Install it
@@ -75,7 +75,7 @@ A callback-ish example.
 ```js
 var errorCallback = function(message) {
     alert('Error: ' + message);
-};```
+};
 
 serial.requestPermission(
 	function(successMessage) {
