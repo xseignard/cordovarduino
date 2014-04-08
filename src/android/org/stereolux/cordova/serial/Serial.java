@@ -61,10 +61,10 @@ public class Serial extends CordovaPlugin {
     private int stopBits;
     private int parity;
     private boolean setDTR;
-    // check whether or not the port is paused
-    private boolean portPaused;
+    
     // callback that will be used to send back data to the cordova app
     private CallbackContext readCallback;
+    
     // I/O manager to handle new incoming serial data
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
     private SerialInputOutputManager mSerialIoManager;
@@ -338,10 +338,7 @@ public class Serial extends CordovaPlugin {
      */
     private void updateReceivedData(byte[] data) {
         if( readCallback != null ) {
-            JSONObject returnObj = new JSONObject();
-            addProperty(returnObj, "length", data.length);
-            addPropertyBytes(returnObj, "data", data);
-            PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, data);
             result.setKeepCallback(true);
             readCallback.sendPluginResult(result);
         }
@@ -380,7 +377,6 @@ public class Serial extends CordovaPlugin {
             } catch (IOException e) {
                 // Ignore
             }
-            portPaused = true;
             port = null;
         }
     }
@@ -393,7 +389,7 @@ public class Serial extends CordovaPlugin {
     @Override
     public void onResume(boolean multitasking) {
         Log.d(TAG, "Resumed, driver=" + driver);
-        if (driver == null && portPaused) {
+        if (driver == null) {
             Log.d(TAG, "No serial device to resume.");
         } 
         else {
@@ -417,6 +413,7 @@ public class Serial extends CordovaPlugin {
             }
             Log.d(TAG, "Serial device: " + driver.getClass().getSimpleName());
         }
+        
         onDeviceStateChange();
     }
 
