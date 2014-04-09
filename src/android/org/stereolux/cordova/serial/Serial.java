@@ -148,7 +148,9 @@ public class Serial extends CordovaPlugin {
                         int dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
                         int stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
                         int parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+                        boolean setDTR = opts.has("dtr") && opts.getBoolean("dtr");
                         port.setParameters(baudRate, dataBits, stopBits, parity);
+                        if (setDTR) port.setDTR(true);
                     }
                     catch (IOException  e) {
                         // deal with error
