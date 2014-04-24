@@ -8,7 +8,7 @@ It's a **work in progress** : Android to Arduino works, Arduino to Android now w
 ## Change log
 2014.04: [Derek K](https://github.com/etx): Implemented registerReadCallback for evented reading and Android onPause/onResume
          
-2014.03: Ed. Lafargue: Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
+2014.03: [Ed. Lafargue](https://github.com/elafargue): Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
 
 2013.11: [Xavier Seignard](https://github.com/xseignard): First implementation
 
