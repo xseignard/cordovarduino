@@ -2,9 +2,6 @@
 
 Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
 
-It's a **work in progress** : Android to Arduino works, Arduino to Android now works.
-
-
 ## Change log
 2014.04: [Derek K](https://github.com/etx): Implemented registerReadCallback for evented reading and Android onPause/onResume
          
