@@ -3,6 +3,8 @@
 Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
 
 ## Change log
+2014.07: [Hendrik Maus](https://github.com/hendrikmaus): Implemented writeHex for working with RS232 protocol, i.e. javascript can now pass "ff", java turns it into a 1 byte array and writes to the serial port - naturally, java, and the existing write method here, would create a 2 byte array from the input string.
+
 2014.04: [Derek K](https://github.com/etx): Implemented registerReadCallback for evented reading and Android onPause/onResume
          
 2014.03: [Ed. Lafargue](https://github.com/elafargue): Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
@@ -41,6 +43,12 @@ serial.read(function success(buffer), function error());
 ```
 `data` is the string representation to be written to the serial port.
 `buffer` is a JavaScript ArrayBuffer containing the data that was just read.
+
+Apart from using `serial.write`, you can also use `serial.writeHex` to have an easy way to work with **RS232 protocol** driven hardware from your javascript by using **hex-strings**.
+
+In a nutshell, `serial.writeHex('ff')` would write just a single byte where `serial.write('ff')` would let java write 2 bytes to the serial port.
+
+Apart from that, `serial.writeHex` works the same way as `serial.write` does.
 
 Register a callback that will be invoked when the driver reads incoming data from your serial device. The success callback function will recieve an ArrayBuffer filled with the data read from serial:
 ```js
