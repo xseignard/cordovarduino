@@ -32,7 +32,7 @@ var serial = {
             errorCallback,
             'Serial',
             'writeSerialHex',
-            [{'data': data}]
+            [{'data': hexString}]
         );
     },
     read: function(successCallback, errorCallback) {
