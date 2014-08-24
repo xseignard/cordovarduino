@@ -97,3 +97,26 @@ serial.requestPermission(
     errorCallback
 );
 ```
+
+### Your Device is not (yet) known?
+
+If you have your devices VID (Vendor ID) and PID (Product ID), you may try
+
+```js
+serial.requestPermission({vid: 7504,pid: 24701},function success(), function error());
+```
+
+If you don't you may do "lsusb" under linux or android. Call it without and with the device plugged in
+
+```
+    root@jfltexx:/ # lsusb                                                         
+    Bus 001 Device 002: ID 05c6:904c
+    Bus 001 Device 001: ID 1d6b:0002
+    root@jfltexx:/ # lsusb                                                         
+    Bus 001 Device 002: ID 05c6:904c
+    Bus 002 Device 002: ID 1d50:607d
+    Bus 001 Device 001: ID 1d6b:0002
+    Bus 002 Device 001: ID 1d6b:0002
+```
+
+mind you that this format is ID VID:PID given in hex.
