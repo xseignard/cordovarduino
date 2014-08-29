@@ -151,7 +151,11 @@ public class Serial extends CordovaPlugin {
 
                 if (opts.has("vid") && opts.has("pid")) {
                     ProbeTable customTable = new ProbeTable();
-                    customTable.addProduct(opts.optInt("vid"), opts.optInt("pid"), CdcAcmSerialDriver.class);
+                    Object o_vid = opts.opt("vid"); //can be an integer Number or a hex String
+                    Object o_pid = opts.opt("pid"); //can be an integer Number or a hex String
+                    int vid = o_vid instanceof Number ? ((Number) o_vid).intValue() : Integer.parseInt((String) o_vid,16);
+                    int pid = o_pid instanceof Number ? ((Number) o_pid).intValue() : Integer.parseInt((String) o_pid,16);
+                    customTable.addProduct(vid, pid, CdcAcmSerialDriver.class); //vid and pid are now integers
 
                     prober = new UsbSerialProber(customTable);
 

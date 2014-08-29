@@ -100,23 +100,13 @@ serial.requestPermission(
 
 ### Your Device is not (yet) known?
 
-If you have your devices VID (Vendor ID) and PID (Product ID), you may try
+Your device might not be listed over at https://github.com/mik3y/usb-serial-for-android .
+If you know your devices VID (Vendor ID) and PID (Product ID) you could however try 
 
 ```js
-serial.requestPermission({vid: 7504,pid: 24701},function success(), function error());
+serial.requestPermission({vid: '1d50', pid: '607d'}, function success(), function error()); //hex strings
+or
+serial.requestPermission({vid: 7504, pid: 24701}, function success(), function error()); //integers
 ```
 
-If you don't you may do "lsusb" under linux or android. Call it without and with the device plugged in
-
-```
-    root@jfltexx:/ # lsusb                                                         
-    Bus 001 Device 002: ID 05c6:904c
-    Bus 001 Device 001: ID 1d6b:0002
-    root@jfltexx:/ # lsusb                                                         
-    Bus 001 Device 002: ID 05c6:904c
-    Bus 002 Device 002: ID 1d50:607d
-    Bus 001 Device 001: ID 1d6b:0002
-    Bus 002 Device 001: ID 1d6b:0002
-```
-
-mind you that this format is ID VID:PID given in hex.
+You can find your devices VID and PID on linux or android using "lsusb" (returning VID:PID in hex) or by looking at your dmesg log.
