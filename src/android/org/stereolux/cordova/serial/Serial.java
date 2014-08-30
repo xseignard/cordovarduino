@@ -26,6 +26,8 @@ import android.util.Base64;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.driver.ProbeTable;
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
 
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
@@ -95,7 +97,8 @@ public class Serial extends CordovaPlugin {
         JSONObject arg_object = args.optJSONObject(0);
         // request permission
         if (ACTION_REQUEST_PERMISSION.equals(action)) {
-            requestPermission(callbackContext);
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            requestPermission(opts, callbackContext);
             return true;
         }
         // open serial port
@@ -139,13 +142,31 @@ public class Serial extends CordovaPlugin {
      * Request permission the the user for the app to use the USB/serial port
      * @param callbackContext the cordova {@link CallbackContext}
      */
-    private void requestPermission(final CallbackContext callbackContext) {
+    private void requestPermission(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 // get UsbManager from Android
                 manager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
-                // find all available drivers from attached devices.
-                List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
+                UsbSerialProber prober;
+
+                if (opts.has("vid") && opts.has("pid")) {
+                    ProbeTable customTable = new ProbeTable();
+                    Object o_vid = opts.opt("vid"); //can be an integer Number or a hex String
+                    Object o_pid = opts.opt("pid"); //can be an integer Number or a hex String
+                    int vid = o_vid instanceof Number ? ((Number) o_vid).intValue() : Integer.parseInt((String) o_vid,16);
+                    int pid = o_pid instanceof Number ? ((Number) o_pid).intValue() : Integer.parseInt((String) o_pid,16);
+                    customTable.addProduct(vid, pid, CdcAcmSerialDriver.class); //vid and pid are now integers
+
+                    prober = new UsbSerialProber(customTable);
+
+                }
+                else {
+                    // find all available drivers from attached devices.
+                    prober = UsbSerialProber.getDefaultProber();
+                }
+
+                List<UsbSerialDriver> availableDrivers = prober.findAllDrivers(manager);
+
                 if (!availableDrivers.isEmpty()) {
                     // get the first one as there is a high chance that there is no more than one usb device attached to your android
                     driver = availableDrivers.get(0);
