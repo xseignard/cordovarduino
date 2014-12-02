@@ -3,6 +3,8 @@
 Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
 
 ## Change log
+2014.08: [Zevero](https://github.com/zevero): Option to find device by VID and PID, that let you use "unrecognized" devices.
+
 2014.07: [Hendrik Maus](https://github.com/hendrikmaus): Implemented writeHex for working with RS232 protocol, i.e. javascript can now pass "ff", java turns it into a 1 byte array and writes to the serial port - naturally, java, and the existing write method here, would create a 2 byte array from the input string.
 
 2014.04: [Derek K](https://github.com/etx): Implemented registerReadCallback for evented reading and Android onPause/onResume
