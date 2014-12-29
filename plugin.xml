@@ -22,5 +22,6 @@
         </config-file>
         <source-file src="src/android/org/stereolux/cordova/serial/Serial.java" target-dir="src/org/stereolux/cordova/serial" />
         <source-file src="src/android/org/stereolux/cordova/serial/UsbBroadcastReceiver.java" target-dir="src/org/stereolux/cordova/serial" />
+        <source-file src="lib/usbseriallibrary.jar" target-dir="libs" />
     </platform>
 </plugin>
