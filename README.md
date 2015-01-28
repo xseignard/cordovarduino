@@ -36,6 +36,7 @@ serial.open(opts, function success(), function error());
 - dataBits: defaults to 8
 - stopBits: defaults to 1
 - parity: defaults to 0
+- dtr: defaults to false (it may be needed to be true for some arduino)
 
 You're now able to read and write:
 ```js
