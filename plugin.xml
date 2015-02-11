@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="org.stereolux.cordova.serial"
+    id="fr.drangies.cordova.serial"
     version="0.0.2">
     <name>Serial</name>
     <description>Cordova plugin to communicate with the android USB serial port</description>
@@ -17,11 +17,11 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Serial">
-                <param name="android-package" value="org.stereolux.cordova.serial.Serial"/>
+                <param name="android-package" value="fr.drangies.cordova.serial.Serial"/>
             </feature>
         </config-file>
-        <source-file src="src/android/org/stereolux/cordova/serial/Serial.java" target-dir="src/org/stereolux/cordova/serial" />
-        <source-file src="src/android/org/stereolux/cordova/serial/UsbBroadcastReceiver.java" target-dir="src/org/stereolux/cordova/serial" />
+        <source-file src="src/android/fr/drangies/cordova/serial/Serial.java" target-dir="src/fr/drangies/cordova/serial" />
+        <source-file src="src/android/fr/drangies/cordova/serial/UsbBroadcastReceiver.java" target-dir="src/fr/drangies/cordova/serial" />
         <source-file src="lib/usbseriallibrary.jar" target-dir="libs" />
     </platform>
 </plugin>

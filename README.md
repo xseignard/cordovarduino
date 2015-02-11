@@ -16,7 +16,7 @@ Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communi
 ### Install it
 From the root folder of your cordova project, run :
 ```
-cordova plugin add https://github.com/stereolux/cordovarduino.git
+cordova plugin add https://github.com/xseignard/cordovarduino.git
 ```
 
 ### How to use it

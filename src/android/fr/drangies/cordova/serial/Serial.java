@@ -1,4 +1,4 @@
-package org.stereolux.cordova.serial;
+package fr.drangies.cordova.serial;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;

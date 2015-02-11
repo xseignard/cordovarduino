@@ -1,4 +1,4 @@
-package org.stereolux.cordova.serial;
+package fr.drangies.cordova.serial;
 
 import org.apache.cordova.CallbackContext;
 
@@ -17,7 +17,7 @@ public class UsbBroadcastReceiver extends BroadcastReceiver {
 	// logging tag
 	private final String TAG = UsbBroadcastReceiver.class.getSimpleName();
 	// usb permission tag name
-    public static final String USB_PERMISSION ="org.stereolux.cordova.serial.USB_PERMISSION";
+    public static final String USB_PERMISSION ="fr.drangies.cordova.serial.USB_PERMISSION";
     // cordova callback context to notify the success/error to the cordova app
 	private CallbackContext callbackContext;
 	// cordova activity to use it to unregister this broadcast receiver
