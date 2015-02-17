@@ -24,4 +24,10 @@
         <source-file src="src/android/fr/drangies/cordova/serial/UsbBroadcastReceiver.java" target-dir="src/fr/drangies/cordova/serial" />
         <source-file src="lib/usbseriallibrary.jar" target-dir="libs" />
     </platform>
+
+    <!-- ubuntu -->
+    <platform name="ubuntu">
+        <header-file src="src/ubuntu/serial.h" />
+        <source-file src="src/ubuntu/serial.cpp" />
+    </platform>
 </plugin>
