@@ -3,6 +3,8 @@
 Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
 
 ## Change log
+2015.10: [Ed. Lafargue](https://github.com/elafargue): Implemented "sleepOnPause" flag in the 'open' options to prevent closing the OTG port when app goes to background.
+
 2014.08: [Zevero](https://github.com/zevero): Option to find device by VID and PID, that let you use "unrecognized" devices.
 
 2014.07: [Hendrik Maus](https://github.com/hendrikmaus): Implemented writeHex for working with RS232 protocol, i.e. javascript can now pass "ff", java turns it into a 1 byte array and writes to the serial port - naturally, java, and the existing write method here, would create a 2 byte array from the input string.
@@ -37,6 +39,7 @@ serial.open(opts, function success(), function error());
 - stopBits: defaults to 1
 - parity: defaults to 0
 - dtr: defaults to false (it may be needed to be true for some arduino)
+- sleepOnPause: defaults to true. If false, the the OTG port will remain open when the app goes to the background (or the screen turns off). Otherwise, the port with automatically close, and resume once the app is brought back to foreground.
 
 You're now able to read and write:
 ```js

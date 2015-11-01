@@ -64,6 +64,7 @@ public class Serial extends CordovaPlugin {
     private int stopBits;
     private int parity;
     private boolean setDTR;
+    private boolean sleepOnPause;
     
     // callback that will be used to send back data to the cordova app
     private CallbackContext readCallback;
@@ -210,6 +211,8 @@ public class Serial extends CordovaPlugin {
                         stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
                         parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
                         setDTR = opts.has("dtr") && opts.getBoolean("dtr");
+                        // Sleep On Pause defaults to true
+                        sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
 
                         port.open(connection);
                         port.setParameters(baudRate, dataBits, stopBits, parity);
@@ -447,14 +450,16 @@ public class Serial extends CordovaPlugin {
      */
     @Override
     public void onPause(boolean multitasking) {
-        stopIoManager();
-        if (port != null) {
-            try {
-                port.close();
-            } catch (IOException e) {
-                // Ignore
+        if (sleepOnPause) {
+            stopIoManager();
+            if (port != null) {
+                try {
+                    port.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
+                port = null;
             }
-            port = null;
         }
     }
 
@@ -466,32 +471,34 @@ public class Serial extends CordovaPlugin {
     @Override
     public void onResume(boolean multitasking) {
         Log.d(TAG, "Resumed, driver=" + driver);
-        if (driver == null) {
-            Log.d(TAG, "No serial device to resume.");
-        } 
-        else {
-            UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-            if (connection != null) {
-                // get first port and open it
-                port = driver.getPorts().get(0);
-                try {
-                    port.open(connection);
-                    port.setParameters(baudRate, dataBits, stopBits, parity);
-                    if (setDTR) port.setDTR(true);
-                }
-                catch (IOException  e) {
-                    // deal with error
-                    Log.d(TAG, e.getMessage());
-                }
-                Log.d(TAG, "Serial port opened!");
-            }
+        if (sleepOnPause) {
+            if (driver == null) {
+                Log.d(TAG, "No serial device to resume.");
+            } 
             else {
-                Log.d(TAG, "Cannot connect to the device!");
+                UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+                if (connection != null) {
+                    // get first port and open it
+                    port = driver.getPorts().get(0);
+                    try {
+                        port.open(connection);
+                        port.setParameters(baudRate, dataBits, stopBits, parity);
+                        if (setDTR) port.setDTR(true);
+                    }
+                    catch (IOException  e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                    }
+                    Log.d(TAG, "Serial port opened!");
+                }
+                else {
+                    Log.d(TAG, "Cannot connect to the device!");
+                }
+                Log.d(TAG, "Serial device: " + driver.getClass().getSimpleName());
             }
-            Log.d(TAG, "Serial device: " + driver.getClass().getSimpleName());
+            
+            onDeviceStateChange();
         }
-        
-        onDeviceStateChange();
     }
 
 
