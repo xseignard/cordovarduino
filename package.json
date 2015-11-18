@@ -1,0 +1,29 @@
+{
+  "name": "cordovarduino",
+  "version": "0.0.3",
+  "description": "Cordova plugin to communicate with the android USB serial port",
+  "cordova": {
+    "id": "fr.drangies.cordova.serial",
+    "platforms": [
+      "android",
+      "ubuntu"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xseignard/cordovarduino.git"
+  },
+  "keywords": [
+    "serial",
+    "arduino",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ubuntu"
+  ],
+  "author": "Xavier Seignard <xavier.seignard@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xseignard/cordovarduino/issues"
+  },
+  "homepage": "https://github.com/xseignard/cordovarduino#readme"
+}
