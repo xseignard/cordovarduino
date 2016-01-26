@@ -114,4 +114,17 @@ or
 serial.requestPermission({vid: 7504, pid: 24701}, function success(), function error()); //integers
 ```
 
+You can also choose the driver to use, be it `FtdiSerialDriver` or `CdcAcmSerialDriver` (defaults to `CdcAcmSerialDriver` if not readable or not one we currently handle, please feel free to add a PR to support more).
+
+```js
+serial.requestPermission({
+    vid: '1d50',
+    pid: '607d',
+    driver: 'FtdiSerialDriver' // or driver: 'FtdiSerialDriver'
+    },
+    function success(),
+    function error()
+);```
+
+
 You can find your devices VID and PID on linux or android using "lsusb" (returning VID:PID in hex) or by looking at your dmesg log.
