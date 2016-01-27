@@ -114,13 +114,21 @@ or
 serial.requestPermission({vid: 7504, pid: 24701}, function success(), function error()); //integers
 ```
 
-You can also choose the driver to use, be it `FtdiSerialDriver` or `CdcAcmSerialDriver` (defaults to `CdcAcmSerialDriver` if not readable or not one we currently handle, please feel free to add a PR to support more).
+You can also choose the driver to use. Options are:
+- `CdcAcmSerialDriver`
+- `Ch34xSerialDriver`
+- `Cp21xxSerialDriver`
+- `FtdiSerialDriver`
+- `ProlificSerialDriver`
+
+
+It defaults to `CdcAcmSerialDriver` if empty or not one of these (please feel free to add a PR to support more).
 
 ```js
 serial.requestPermission({
-    vid: '1d50',
-    pid: '607d',
-    driver: 'FtdiSerialDriver' // or driver: 'FtdiSerialDriver'
+        vid: '1d50',
+        pid: '607d',
+        driver: 'FtdiSerialDriver' // or any other
     },
     function success(),
     function error()

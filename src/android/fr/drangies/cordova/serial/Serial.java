@@ -1,10 +1,10 @@
 package fr.drangies.cordova.serial;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -13,6 +13,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
+import com.hoho.android.usbserial.driver.Ch34xSerialDriver;
+import com.hoho.android.usbserial.driver.Cp21xxSerialDriver;
+import com.hoho.android.usbserial.driver.FtdiSerialDriver;
+import com.hoho.android.usbserial.driver.ProbeTable;
+import com.hoho.android.usbserial.driver.ProlificSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.util.SerialInputOutputManager;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -20,17 +31,8 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.util.Log;
 import android.util.Base64;
-
-import com.hoho.android.usbserial.driver.UsbSerialDriver;
-import com.hoho.android.usbserial.driver.UsbSerialPort;
-import com.hoho.android.usbserial.driver.UsbSerialProber;
-import com.hoho.android.usbserial.driver.ProbeTable;
-import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
-import com.hoho.android.usbserial.driver.FtdiSerialDriver;
-
-import com.hoho.android.usbserial.util.SerialInputOutputManager;
+import android.util.Log;
 
 
 /**
@@ -157,21 +159,27 @@ public class Serial extends CordovaPlugin {
 					Object o_pid = opts.opt("pid"); //can be an integer Number or a hex String
 					int vid = o_vid instanceof Number ? ((Number) o_vid).intValue() : Integer.parseInt((String) o_vid,16);
 					int pid = o_pid instanceof Number ? ((Number) o_pid).intValue() : Integer.parseInt((String) o_pid,16);
-					if (opts.has("driver")) {
-						String driver = (String) opts.opt("driver");
-						if (driver == "FtdiSerialDriver") {
-							customTable.addProduct(vid, pid, FtdiSerialDriver.class);
-						}
-						else if (driver == "CdcAcmSerialDriver"){
-							customTable.addProduct(vid, pid, CdcAcmSerialDriver.class);
-						}
-						else {
-							customTable.addProduct(vid, pid, CdcAcmSerialDriver.class);
-						}
+					String driver = opts.has("driver") ? (String) opts.opt("driver") : "CdcAcmSerialDriver";
+
+					if (driver.equals("FtdiSerialDriver")) {
+						customTable.addProduct(vid, pid, FtdiSerialDriver.class);
 					}
-					else {
+					else if (driver.equals("CdcAcmSerialDriver")) {
 						customTable.addProduct(vid, pid, CdcAcmSerialDriver.class);
 					}
+					else if (driver.equals("Cp21xxSerialDriver")) {
+                    	customTable.addProduct(vid, pid, Cp21xxSerialDriver.class);
+					}
+					else if (driver.equals("ProlificSerialDriver")) {
+                    	customTable.addProduct(vid, pid, ProlificSerialDriver.class);
+					}
+					else if (driver.equals("Ch34xSerialDriver")) {
+						customTable.addProduct(vid, pid, Ch34xSerialDriver.class);
+					}
+                    else {
+                        Log.d(TAG, "Unknown driver!");
+                        callbackContext.error("Unknown driver!");
+                    }
 
 					prober = new UsbSerialProber(customTable);
 
