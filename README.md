@@ -132,7 +132,7 @@ serial.requestPermission({
     },
     function success(),
     function error()
-);```
-
+);
+```
 
 You can find your devices VID and PID on linux or android using "lsusb" (returning VID:PID in hex) or by looking at your dmesg log.
