@@ -16,7 +16,7 @@ And that means that ability to give your Arduino project a mobile app (web-view)
 ### Install it
 From the root folder of your cordova project, run :
 ```
-cordova plugin add https://github.com/xseignard/cordovarduino.git
+cordova plugin add cordovarduino
 ```
 
 ### How to use it
