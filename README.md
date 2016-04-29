@@ -70,7 +70,7 @@ And finally close the port:
 serial.close(function success(), function error())
 ```
 
-### An Example
+### A Simple Example
 
 A callback-ish example.
 
@@ -99,7 +99,7 @@ serial.requestPermission(
 );
 ```
 
-### A Full example
+### A Complete example
 
 Here is your `index.html`:
 
