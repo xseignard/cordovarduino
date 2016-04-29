@@ -9,7 +9,7 @@ Want a module for your Arduino board that provides:
 
 Hey, why not just use your Android phone/tablet? 
 
-This Cordova/Phonegap plugin allows two-way serial communication using *USB On-The-Go* (OTG) from your Android device to your Arduino board or other USB-powered serial IO device. And that means the ability to power the project using your rechargeable battery!
+This Cordova/Phonegap plugin allows two-way serial communication using *USB On-The-Go* (OTG) from your Android device to your Arduino board or other USB-powered serial IO device. And that means the ability to power the project using the rechargeable battery on your phone!
 
 ### Install it
 From the root folder of your cordova project, run :
