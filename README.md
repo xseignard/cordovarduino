@@ -1,6 +1,15 @@
-## Cordovarduino
+## cordovarduino
 
-Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
+Want a module for your Arduino board that provides:
+
+- Power
+- High-res Touch Interface
+- Storage
+- *AND* connectivity? (WiFi + 3G + Bluetooth)
+
+Hey, why not just use your Android phone/tablet? 
+
+This Cordova/Phonegap plugin allows two-way serial communication using *USB On-The-Go* (OTG) from your Android device to your Arduino board or other USB-powered serial IO device. And that means the ability to power the project using your rechargeable battery!
 
 ### Install it
 From the root folder of your cordova project, run :
