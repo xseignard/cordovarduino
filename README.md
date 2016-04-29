@@ -11,7 +11,7 @@ Hey, why not just use your Android phone/tablet?
 
 This Cordova/Phonegap plugin allows two-way serial communication using *USB On-The-Go* (OTG) from your Android device to your Arduino board or other USB-powered serial IO device. 
 
-And that means that ability to give your IoT project a simple interface with HTML, CSS and JavaScript as well as powering it using the rechargeable battery on your phone!
+And that means that ability to give your IoT project a simple web-view interface as well as powering it using the rechargeable battery on your phone!
 
 ### Install it
 From the root folder of your cordova project, run :
@@ -20,7 +20,10 @@ cordova plugin add https://github.com/xseignard/cordovarduino.git
 ```
 
 ### How to use it
-Thanks to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library, you can communicate with CDC, FTDI, Arduino and other devices. Here is the Cordova plugin API.
+
+Your first need to understand how to create and upload a simple Cordova Project. Here is some info on [how to get started](https://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html) with Cordova on Android, and here is a [simple Cordova plugin](https://github.com/apache/cordova-plugin-vibration) you can use to get familiar with the plugin system.
+
+The plugin API for this behaves as follows:
 
 Because you're polite, first request the permission to use the serial port to the system:
 ```js
@@ -247,6 +250,8 @@ void loop() {
 ```
 
 ### Your Device is not (yet) known?
+
+Thanks to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library, you can communicate with CDC, FTDI, Arduino and other devices. 
 
 Your device might not be listed over at https://github.com/mik3y/usb-serial-for-android .
 If you know your devices VID (Vendor ID) and PID (Product ID) you could however try 
