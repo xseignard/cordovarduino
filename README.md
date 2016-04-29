@@ -103,7 +103,7 @@ serial.requestPermission(
 
 Here is your `index.html`:
 
-```
+```html
 <!DOCTYPE html>
 <html>
     <head>
@@ -130,7 +130,7 @@ Here is your `index.html`:
 
 Here is the `index.js` file:
 
-```
+```js
 var app = {
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
@@ -211,7 +211,7 @@ app.initialize();
 
 And here is your Arduino project `.ino` file, with a potentiometer on A0 and a led on 13:
 
-```
+```c
 #define POT A0
 #define LED 13
 
