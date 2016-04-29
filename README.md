@@ -70,7 +70,7 @@ And finally close the port:
 serial.close(function success(), function error())
 ```
 
-### Example
+### An Example
 
 A callback-ish example.
 
@@ -97,6 +97,151 @@ serial.requestPermission(
     },
     errorCallback
 );
+```
+
+### A Full example
+
+Here is your `index.html`:
+
+```
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <title>Hello World</title>
+    </head>
+    <body>
+        <div class="app">
+            <h1>Potentiometer value</h1>
+            <p>Value <span id="pot">...</span></p>
+            <p id="delta">...</p>
+            <button id="on">On</button>
+            <button id="off">Off</button>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </body>
+</html>
+```
+
+Here is the `index.js` file:
+
+```
+var app = {
+    initialize: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+    onDeviceReady: function() {
+        var potText = document.getElementById('pot');
+        var delta = document.getElementById('delta');
+        var on = document.getElementById('on');
+        var off = document.getElementById('off');
+        var open = false;
+        var str = '';
+        var lastRead = new Date();
+
+        var errorCallback = function(message) {
+            alert('Error: ' + message);
+        };
+        // request permission first
+        serial.requestPermission(
+            // if user grants permission
+            function(successMessage) {
+                // open serial port
+                serial.open(
+                    {baudRate: 9600},
+                    // if port is succesfuly opened
+                    function(successMessage) {
+                        open = true;
+                        // register the read callback
+                        serial.registerReadCallback(
+                            function success(data){
+                                // decode the received message
+                                var view = new Uint8Array(data);
+                                if(view.length >= 1) {
+                                    for(var i=0; i < view.length; i++) {
+                                        // if we received a \n, the message is complete, display it
+                                        if(view[i] == 13) {
+                                            // check if the read rate correspond to the arduino serial print rate
+                                            var now = new Date();
+                                            delta.innerText = now - lastRead;
+                                            lastRead = now;
+                                            // display the message
+                                            var value = parseInt(str);
+                                            pot.innerText = value;
+                                            str = '';
+                                        }
+                                        // if not, concatenate with the begening of the message
+                                        else {
+                                            var temp_str = String.fromCharCode(view[i]);
+                                            var str_esc = escape(temp_str);
+                                            str += unescape(str_esc);
+                                        }
+                                    }
+                                }
+                            },
+                            // error attaching the callback
+                            errorCallback
+                        );
+                    },
+                    // error opening the port
+                    errorCallback
+                );
+            },
+            // user does not grant permission
+            errorCallback
+        );
+
+        on.onclick = function() {
+            console.log('click');
+            if (open) serial.write('1');
+        };
+        off.onclick = function() {
+            if (open) serial.write('0');
+        }
+    }
+};
+
+app.initialize();
+```
+
+And here is your Arduino project `.ino` file, with a potentiometer on A0 and a led on 13:
+
+```
+#define POT A0
+#define LED 13
+
+unsigned long previousMillis;
+int interval = 50;
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(POT, INPUT);
+    pinMode(LED, OUTPUT);
+}
+
+void loop() {
+    if (Serial.available() > 0) {
+        char i = Serial.read();
+        switch (i) {
+            case '0':
+                digitalWrite(LED, LOW);
+                break;
+            case '1':
+                digitalWrite(LED, HIGH);
+                break;
+        }
+    }
+    if (millis() - previousMillis >= interval) {
+        previousMillis = millis();
+        int value = analogRead(POT);
+        Serial.println(value);
+    }
+}
 ```
 
 ### Your Device is not (yet) known?
