@@ -1,19 +1,17 @@
-## Cordovarduino
+## cordovarduino
 
-Cordovarduino is a Cordova/Phonegap plugin that enable you to use serial communication from an Android device to a serial over USB capable one.
+Want a module for your Arduino board that provides:
 
-## Change log
-2015.10: [Ed. Lafargue](https://github.com/elafargue): Implemented "sleepOnPause" flag in the 'open' options to prevent closing the OTG port when app goes to background.
+- Power
+- High-res Touch Interface
+- Storage
+- *AND* connectivity? (WiFi + 3G + Bluetooth)
 
-2014.08: [Zevero](https://github.com/zevero): Option to find device by VID and PID, that let you use "unrecognized" devices.
+Hey, why not just use your Android phone/tablet? 
 
-2014.07: [Hendrik Maus](https://github.com/hendrikmaus): Implemented writeHex for working with RS232 protocol, i.e. javascript can now pass "ff", java turns it into a 1 byte array and writes to the serial port - naturally, java, and the existing write method here, would create a 2 byte array from the input string.
+This Cordova/Phonegap plugin allows two-way serial communication using *USB On-The-Go* (OTG) from your Android device to your Arduino board or other USB-powered serial IO device. 
 
-2014.04: [Derek K](https://github.com/etx): Implemented registerReadCallback for evented reading and Android onPause/onResume
-         
-2014.03: [Ed. Lafargue](https://github.com/elafargue): Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
-
-2013.11: [Xavier Seignard](https://github.com/xseignard): First implementation
+And that means that ability to give your Arduino project a mobile app (web-view) interface as well as powering it using the rechargeable battery on your phone!
 
 ### Install it
 From the root folder of your cordova project, run :
@@ -22,7 +20,10 @@ cordova plugin add https://github.com/xseignard/cordovarduino.git
 ```
 
 ### How to use it
-Thanks to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library, you can communicate with CDC, FTDI, Arduino and other devices. Here is the Cordova plugin API.
+
+Your first need to understand how to create and upload a simple Cordova Project. Here is some info on [how to get started](https://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html) with Cordova on Android, and here is a [simple Cordova plugin](https://github.com/apache/cordova-plugin-vibration) you can use to get familiar with the plugin system.
+
+The plugin API for this behaves as follows:
 
 Because you're polite, first request the permission to use the serial port to the system:
 ```js
@@ -74,7 +75,7 @@ And finally close the port:
 serial.close(function success(), function error())
 ```
 
-### Example
+### A Simple Example
 
 A callback-ish example.
 
@@ -103,7 +104,154 @@ serial.requestPermission(
 );
 ```
 
+### A Complete Example
+
+Here is your `index.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <title>Hello World</title>
+    </head>
+    <body>
+        <div class="app">
+            <h1>Potentiometer value</h1>
+            <p>Value <span id="pot">...</span></p>
+            <p id="delta">...</p>
+            <button id="on">On</button>
+            <button id="off">Off</button>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </body>
+</html>
+```
+
+Here is the `index.js` file:
+
+```js
+var app = {
+    initialize: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+    onDeviceReady: function() {
+        var potText = document.getElementById('pot');
+        var delta = document.getElementById('delta');
+        var on = document.getElementById('on');
+        var off = document.getElementById('off');
+        var open = false;
+        var str = '';
+        var lastRead = new Date();
+
+        var errorCallback = function(message) {
+            alert('Error: ' + message);
+        };
+        // request permission first
+        serial.requestPermission(
+            // if user grants permission
+            function(successMessage) {
+                // open serial port
+                serial.open(
+                    {baudRate: 9600},
+                    // if port is succesfuly opened
+                    function(successMessage) {
+                        open = true;
+                        // register the read callback
+                        serial.registerReadCallback(
+                            function success(data){
+                                // decode the received message
+                                var view = new Uint8Array(data);
+                                if(view.length >= 1) {
+                                    for(var i=0; i < view.length; i++) {
+                                        // if we received a \n, the message is complete, display it
+                                        if(view[i] == 13) {
+                                            // check if the read rate correspond to the arduino serial print rate
+                                            var now = new Date();
+                                            delta.innerText = now - lastRead;
+                                            lastRead = now;
+                                            // display the message
+                                            var value = parseInt(str);
+                                            pot.innerText = value;
+                                            str = '';
+                                        }
+                                        // if not, concatenate with the begening of the message
+                                        else {
+                                            var temp_str = String.fromCharCode(view[i]);
+                                            var str_esc = escape(temp_str);
+                                            str += unescape(str_esc);
+                                        }
+                                    }
+                                }
+                            },
+                            // error attaching the callback
+                            errorCallback
+                        );
+                    },
+                    // error opening the port
+                    errorCallback
+                );
+            },
+            // user does not grant permission
+            errorCallback
+        );
+
+        on.onclick = function() {
+            console.log('click');
+            if (open) serial.write('1');
+        };
+        off.onclick = function() {
+            if (open) serial.write('0');
+        }
+    }
+};
+
+app.initialize();
+```
+
+And here is your Arduino project `.ino` file, with a potentiometer on A0 and a led on 13:
+
+```c
+#define POT A0
+#define LED 13
+
+unsigned long previousMillis;
+int interval = 50;
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(POT, INPUT);
+    pinMode(LED, OUTPUT);
+}
+
+void loop() {
+    if (Serial.available() > 0) {
+        char i = Serial.read();
+        switch (i) {
+            case '0':
+                digitalWrite(LED, LOW);
+                break;
+            case '1':
+                digitalWrite(LED, HIGH);
+                break;
+        }
+    }
+    if (millis() - previousMillis >= interval) {
+        previousMillis = millis();
+        int value = analogRead(POT);
+        Serial.println(value);
+    }
+}
+```
+
 ### Your Device is not (yet) known?
+
+Thanks to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library, you can communicate with CDC, FTDI, Arduino and other devices. 
 
 Your device might not be listed over at https://github.com/mik3y/usb-serial-for-android .
 If you know your devices VID (Vendor ID) and PID (Product ID) you could however try 
@@ -136,3 +284,17 @@ serial.requestPermission({
 ```
 
 You can find your devices VID and PID on linux or android using "lsusb" (returning VID:PID in hex) or by looking at your dmesg log.
+
+
+## Change log
+2015.10: [Ed. Lafargue](https://github.com/elafargue): Implemented "sleepOnPause" flag in the 'open' options to prevent closing the OTG port when app goes to background.
+
+2014.08: [Zevero](https://github.com/zevero): Option to find device by VID and PID, that let you use "unrecognized" devices.
+
+2014.07: [Hendrik Maus](https://github.com/hendrikmaus): Implemented writeHex for working with RS232 protocol, i.e. javascript can now pass "ff", java turns it into a 1 byte array and writes to the serial port - naturally, java, and the existing write method here, would create a 2 byte array from the input string.
+
+2014.04: [Derek K](https://github.com/etx): Implemented registerReadCallback for evented reading and Android onPause/onResume
+         
+2014.03: [Ed. Lafargue](https://github.com/elafargue): Implemented read(). The success callback returns a Javascript ArrayBuffer which is the best way to handle binary data in Javascript. It is straightforward to convert this to a string if required - a utility function could be implemented in this plugin.
+
+2013.11: [Xavier Seignard](https://github.com/xseignard): First implementation
