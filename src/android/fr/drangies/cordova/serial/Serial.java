@@ -235,14 +235,14 @@ public class Serial extends CordovaPlugin {
 						stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
 						parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
 						setDTR = opts.has("dtr") && opts.getBoolean("dtr");
-                        setRTS = opts.has("rts") && opts.getBoolean("rts");
+						setRTS = opts.has("rts") && opts.getBoolean("rts");
 						// Sleep On Pause defaults to true
 						sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
 
 						port.open(connection);
 						port.setParameters(baudRate, dataBits, stopBits, parity);
 						if (setDTR) port.setDTR(true);
-                        if (setRTS) port.setRTS(true);
+						if (setRTS) port.setRTS(true);
 					}
 					catch (IOException  e) {
 						// deal with error
@@ -510,7 +510,7 @@ public class Serial extends CordovaPlugin {
 						port.open(connection);
 						port.setParameters(baudRate, dataBits, stopBits, parity);
 						if (setDTR) port.setDTR(true);
-                        if (setRTS) port.setRTS(true);
+						if (setRTS) port.setRTS(true);
 					}
 					catch (IOException  e) {
 						// deal with error
