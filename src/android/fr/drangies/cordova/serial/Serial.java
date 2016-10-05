@@ -67,7 +67,7 @@ public class Serial extends CordovaPlugin {
 	private int stopBits;
 	private int parity;
 	private boolean setDTR;
-    private boolean setRTS;
+	private boolean setRTS;
 	private boolean sleepOnPause;
 	
 	// callback that will be used to send back data to the cordova app

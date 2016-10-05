@@ -40,6 +40,7 @@ serial.open(opts, function success(), function error());
 - stopBits: defaults to 1
 - parity: defaults to 0
 - dtr: defaults to false (it may be needed to be true for some arduino)
+- rts: defaults to false (it may be needed to be true for some modules, including the monkeyboard dab module)
 - sleepOnPause: defaults to true. If false, the the OTG port will remain open when the app goes to the background (or the screen turns off). Otherwise, the port with automatically close, and resume once the app is brought back to foreground.
 
 You're now able to read and write:
