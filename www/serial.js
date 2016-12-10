@@ -23,6 +23,9 @@ var serial = {
         );
     },
     write: function(data, successCallback, errorCallback) {
+        if (data instanceof ArrayBuffer) {
+            data = String.fromCharCode.apply(null, new Uint8Array(data));
+        }
         cordova.exec(
             successCallback,
             errorCallback,

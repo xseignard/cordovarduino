@@ -48,7 +48,7 @@ You're now able to read and write:
 serial.write(data, function success(), function error());
 serial.read(function success(buffer), function error());
 ```
-`data` is the string representation to be written to the serial port.
+`data` is an ArrayBuffer or the string representation to be written to the serial port.
 `buffer` is a JavaScript ArrayBuffer containing the data that was just read.
 
 Apart from using `serial.write`, you can also use `serial.writeHex` to have an easy way to work with **RS232 protocol** driven hardware from your javascript by using **hex-strings**.
