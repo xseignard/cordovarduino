@@ -25,7 +25,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include <QSerialPort>
+#include <QtSerialPort/QSerialPort>
 #include <cplugin.h>
 
 class Serial: public CPlugin {
