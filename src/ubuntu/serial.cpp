@@ -91,7 +91,7 @@ void Serial::openSerial(int scId, int ecId, const QVariantMap& arg) {
 
 void Serial::writeSerial(int scId, int ecId, const QVariantMap& arg) {
     if (port->isOpen()) {
-        QByteArray data = arg["data"].toString().toLatin1();
+        QByteArray data = arg["data"].toString().toUtf8();
 
         qint64 written = 0;
         while (written < data.size()) {
