@@ -15,7 +15,7 @@
 
     <!-- android -->
     <platform name="android">
-        <config-file target="res/xml/config.xml" parent="/*">
+        <config-file target="app/src/main/res/xml/config.xml" parent="/*">
             <feature name="Serial">
                 <param name="android-package" value="fr.drangies.cordova.serial.Serial"/>
             </feature>
