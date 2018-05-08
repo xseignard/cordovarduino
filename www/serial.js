@@ -1,3 +1,4 @@
+cordova.define("cordovarduino.Serial", function(require, exports, module) {
 var serial = {
     requestPermission: function(opts, successCallback, errorCallback) {
         if (typeof opts === 'function') {  //user did not pass opts
@@ -28,6 +29,15 @@ var serial = {
             errorCallback,
             'Serial',
             'writeSerial',
+            [{'data': data}]
+        );
+    },
+    writeByteArraySerial: function(data, successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'Serial',
+            'writeByteArraySerial',
             [{'data': data}]
         );
     },
@@ -70,3 +80,5 @@ var serial = {
 
 };
 module.exports = serial;
+
+});

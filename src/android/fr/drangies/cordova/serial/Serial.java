@@ -48,6 +48,7 @@ public class Serial extends CordovaPlugin {
 	private static final String ACTION_READ = "readSerial";
 	private static final String ACTION_WRITE = "writeSerial";
 	private static final String ACTION_WRITE_HEX = "writeSerialHex";
+	private static final String ACTION_WRITE_ARRAY = "writeByteArraySerial";
 	private static final String ACTION_CLOSE = "closeSerial";
 	private static final String ACTION_READ_CALLBACK = "registerReadCallback";
 
@@ -122,6 +123,12 @@ public class Serial extends CordovaPlugin {
 		else if (ACTION_WRITE_HEX.equals(action)) {
 			String data = arg_object.getString("data");
 			writeSerialHex(data, callbackContext);
+			return true;
+		}
+		// write byte array to the serial port
+		else if (ACTION_WRITE_ARRAY.equals(action)) {
+			JSONObject data = arg_object;
+			writeByteArraySerial(data, callbackContext);
 			return true;
 		}
 		// read on the serial port
@@ -283,10 +290,54 @@ public class Serial extends CordovaPlugin {
 						Log.d(TAG, data);
 						byte[] buffer = data.getBytes();
 						port.write(buffer, 1000);
-						callbackContext.success();
+						callbackContext.success("OK");
 					}
 					catch (IOException e) {
 						// deal with error
+						Log.d(TAG, e.getMessage());
+						callbackContext.error(e.getMessage());
+					}
+				}
+			}
+		});
+	}
+	/**
+	 * Write on the serial port
+	 * @param data the {@link String} representation of the data to be written on the port
+	 * @param callbackContext the cordova {@link CallbackContext}
+	 */
+	private void writeByteArraySerial(final JSONObject data, final CallbackContext callbackContext) {
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				if (port == null) {
+					callbackContext.error("Writing a closed port.");
+				}
+				else {
+					try {
+						//Log.d(TAG, data);
+						
+						//port.write(buffer, 1000);
+						JSONObject myObject;
+						if(data.has("data")){
+
+							myObject = data.getJSONObject("data");
+							byte[] buffer = new byte[myObject.length()];
+
+							for (int i = 0; i<myObject.length(); i++) {
+								buffer[i] = (byte)myObject.getInt(Integer.toString(i));
+							}
+							try {
+								port.write(buffer, 1000);
+								callbackContext.success("OK");
+							}
+							catch (IOException e) {
+								// deal with error
+								Log.d(TAG, e.getMessage());
+								callbackContext.error(e.getMessage());
+							}
+						}
+					}catch (JSONException e) {
+					// // 	// deal with error
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
 					}

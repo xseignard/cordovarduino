@@ -57,6 +57,8 @@ In a nutshell, `serial.writeHex('ff')` would write just a single byte where `ser
 
 Apart from that, `serial.writeHex` works the same way as `serial.write` does.
 
+You can now also use `serial.writeByteArray` to send Uint8Array for use with things like SLIPSerial and OSC.
+
 Register a callback that will be invoked when the driver reads incoming data from your serial device. The success callback function will recieve an ArrayBuffer filled with the data read from serial:
 ```js
 serial.registerReadCallback(
