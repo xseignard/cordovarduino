@@ -1,4 +1,3 @@
-cordova.define("cordovarduino.Serial", function(require, exports, module) {
 var serial = {
     requestPermission: function(opts, successCallback, errorCallback) {
         if (typeof opts === 'function') {  //user did not pass opts
@@ -81,4 +80,3 @@ var serial = {
 };
 module.exports = serial;
 
-});
