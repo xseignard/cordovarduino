@@ -1,3 +1,7 @@
+## changes in this fork
+- Fixed the plugin id issue
+- New function for sending byte arrays (blobs)
+
 ## cordovarduino
 
 Want a module for your Arduino board that provides:
