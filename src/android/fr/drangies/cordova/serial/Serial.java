@@ -282,8 +282,8 @@ public class Serial extends CordovaPlugin {
 					try {
 						Log.d(TAG, data);
 						byte[] buffer = data.getBytes();
-						port.write(buffer, 1000);
-						callbackContext.success();
+						int result = port.write(buffer, 1000);
+						callbackContext.success(result + " character written.");
 					}
 					catch (IOException e) {
 						// deal with error
@@ -314,7 +314,7 @@ public class Serial extends CordovaPlugin {
 						int result = port.write(buffer, 1000);
 						callbackContext.success(result + " bytes written.");
 					}
-					catch (IOException e) {
+					catch (IOException | StringIndexOutOfBoundsException e) {
 						// deal with error
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
@@ -334,7 +334,7 @@ public class Serial extends CordovaPlugin {
 	 * @param s
 	 * @return
 	 */
-	private byte[] hexStringToByteArray(String s) {
+	private byte[] hexStringToByteArray(String s) throws StringIndexOutOfBoundsException{
 		int len = s.length();
 		byte[] data = new byte[len / 2];
 		for (int i = 0; i < len; i += 2) {
@@ -395,7 +395,7 @@ public class Serial extends CordovaPlugin {
 						port.close();
 					}
 					port = null;
-					callbackContext.success();
+					callbackContext.success("Serial port cloesd!");
 				}
 				catch (IOException e) {
 					// deal with error
