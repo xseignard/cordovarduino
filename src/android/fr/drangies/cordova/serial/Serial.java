@@ -244,12 +244,7 @@ public class Serial extends CordovaPlugin {
 						if (setDTR) port.setDTR(true);
 						if (setRTS) port.setRTS(true);
 					}
-					catch (IOException  e) {
-						// deal with error
-						Log.d(TAG, e.getMessage());
-						callbackContext.error(e.getMessage());
-					}
-					catch (JSONException e) {
+					catch (IOException | JSONException e) {
 						// deal with error
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
@@ -285,7 +280,7 @@ public class Serial extends CordovaPlugin {
 						int result = port.write(buffer, 1000);
 						callbackContext.success(result + " character written.");
 					}
-					catch (IOException e) {
+					catch (IOException | NullPointerException e) {
 						// deal with error
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
@@ -314,7 +309,7 @@ public class Serial extends CordovaPlugin {
 						int result = port.write(buffer, 1000);
 						callbackContext.success(result + " bytes written.");
 					}
-					catch (IOException | StringIndexOutOfBoundsException e) {
+					catch (IOException | StringIndexOutOfBoundsException | NullPointerException e) {
 						// deal with error
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
@@ -372,7 +367,7 @@ public class Serial extends CordovaPlugin {
 							callbackContext.sendPluginResult(new PluginResult(status, data));
 						}
 					}
-					catch (IOException e) {
+					catch (IOException | NullPointerException e) {
 						// deal with error
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
@@ -397,7 +392,7 @@ public class Serial extends CordovaPlugin {
 					port = null;
 					callbackContext.success("Serial port cloesd!");
 				}
-				catch (IOException e) {
+				catch (IOException | NullPointerException e) {
 					// deal with error
 					Log.d(TAG, e.getMessage());
 					callbackContext.error(e.getMessage());
@@ -481,7 +476,7 @@ public class Serial extends CordovaPlugin {
 			if (port != null) {
 				try {
 					port.close();
-				} catch (IOException e) {
+				} catch (IOException | NullPointerException e) {
 					// Ignore
 				}
 				port = null;
@@ -512,7 +507,7 @@ public class Serial extends CordovaPlugin {
 						if (setDTR) port.setDTR(true);
 						if (setRTS) port.setRTS(true);
 					}
-					catch (IOException  e) {
+					catch (IOException e) {
 						// deal with error
 						Log.d(TAG, e.getMessage());
 					}
@@ -540,7 +535,7 @@ public class Serial extends CordovaPlugin {
 			try {
 				port.close();
 			}
-			catch (IOException e) {
+			catch (IOException | NullPointerException e) {
 				Log.d(TAG, e.getMessage());
 			}
 		}
