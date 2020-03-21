@@ -1,4 +1,4 @@
-## cordovarduino
+# cordova-plugin-usb-serial
 
 Want a module for your Arduino board that provides:
 
@@ -13,26 +13,37 @@ This Cordova/Phonegap plugin allows two-way serial communication using *USB On-T
 
 And that means that ability to give your Arduino project a mobile app (web-view) interface as well as powering it using the rechargeable battery on your phone!
 
-### Install it
+## Install it
 From the root folder of your cordova project, run :
+
+```sh
+cordova plugin add @red-mobile/cordova-plugin-usb-serial
 ```
-cordova plugin add cordovarduino
+### unisntall it
+
+```sh
+cordova plugin remove cordova-plugin-usb-serial
+npm uninstall add @red-mobile/cordova-plugin-usb-serial
 ```
 
-### How to use it
+## How to use it
 
 Your first need to understand how to create and upload a simple Cordova Project. Here is some info on [how to get started](https://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html) with Cordova on Android, and here is a [simple Cordova plugin](https://github.com/apache/cordova-plugin-vibration) you can use to get familiar with the plugin system.
 
 The plugin API for this behaves as follows:
 
 Because you're polite, first request the permission to use the serial port to the system:
+
 ```js
 serial.requestPermission(function success(), function error());
 ```
+
 You can now open the serial port:
+
 ```js
 serial.open(opts, function success(), function error());
 ```
+
 `opts` is a JSON object with the following properties:
 
 - baudRate: defaults to 9600
@@ -44,10 +55,12 @@ serial.open(opts, function success(), function error());
 - sleepOnPause: defaults to true. If false, the the OTG port will remain open when the app goes to the background (or the screen turns off). Otherwise, the port with automatically close, and resume once the app is brought back to foreground.
 
 You're now able to read and write:
+
 ```js
 serial.write(data, function success(), function error());
 serial.read(function success(buffer), function error());
 ```
+
 `data` is the string representation to be written to the serial port.
 `buffer` is a JavaScript ArrayBuffer containing the data that was just read.
 
@@ -58,6 +71,7 @@ In a nutshell, `serial.writeHex('ff')` would write just a single byte where `ser
 Apart from that, `serial.writeHex` works the same way as `serial.write` does.
 
 Register a callback that will be invoked when the driver reads incoming data from your serial device. The success callback function will recieve an ArrayBuffer filled with the data read from serial:
+
 ```js
 serial.registerReadCallback(
 	function success(data){
@@ -69,14 +83,13 @@ serial.registerReadCallback(
 	});
 ```
 
-
-
 And finally close the port:
+
 ```js
 serial.close(function success(), function error())
 ```
 
-### A Simple Example
+## A Simple Example
 
 A callback-ish example.
 
@@ -105,7 +118,7 @@ serial.requestPermission(
 );
 ```
 
-### A Complete Example
+## A Complete Example
 
 Here is your `index.html`:
 
@@ -250,7 +263,7 @@ void loop() {
 }
 ```
 
-### Your Device is not (yet) known?
+## Your Device is not (yet) known?
 
 Thanks to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library, you can communicate with CDC, FTDI, Arduino and other devices. 
 
@@ -264,12 +277,12 @@ serial.requestPermission({vid: 7504, pid: 24701}, function success(), function e
 ```
 
 You can also choose the driver to use. Options are:
+
 - `CdcAcmSerialDriver`
 - `Ch34xSerialDriver`
 - `Cp21xxSerialDriver`
 - `FtdiSerialDriver`
 - `ProlificSerialDriver`
-
 
 It defaults to `CdcAcmSerialDriver` if empty or not one of these (please feel free to add a PR to support more).
 
@@ -286,8 +299,8 @@ serial.requestPermission({
 
 You can find your devices VID and PID on linux or android using "lsusb" (returning VID:PID in hex) or by looking at your dmesg log.
 
-
 ## Change log
+
 2015.10: [Ed. Lafargue](https://github.com/elafargue): Implemented "sleepOnPause" flag in the 'open' options to prevent closing the OTG port when app goes to background.
 
 2014.08: [Zevero](https://github.com/zevero): Option to find device by VID and PID, that let you use "unrecognized" devices.

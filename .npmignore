@@ -1,0 +1,12 @@
+# Testing, code coverage, and linting
+.eslintignore
+.eslintrc.yml
+.jshinrc
+
+# Git
+.git
+.gitattributes
+.gitignore
+
+# Github
+.github
