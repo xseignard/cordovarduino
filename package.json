@@ -1,29 +1,37 @@
 {
-  "name": "cordovarduino",
-  "version": "0.0.10",
+  "name": "@red-mobile/cordova-plugin-usb-serial",
+  "version": "1.0.0",
   "description": "Cordova plugin to communicate with the android USB serial port",
   "cordova": {
-    "id": "cordovarduino",
+    "id": "@red-mobile/cordova-plugin-usb-serial",
     "platforms": [
-      "android",
-      "ubuntu"
+      "android"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xseignard/cordovarduino.git"
+    "url": "git+https://github.com/okhiroyuki/cordova-plugin-usb-serial.git"
   },
   "keywords": [
     "serial",
     "arduino",
     "ecosystem:cordova",
-    "cordova-android",
-    "cordova-ubuntu"
+    "cordova-android"
   ],
-  "author": "Xavier Seignard <xavier.seignard@gmail.com>",
+  "scripts": {
+    "test": "npm run jshint",
+    "jshint": "node node_modules/jshint/bin/jshint www && node node_modules/jshint/bin/jshint src"
+  },
+  "engines": {
+    "cordova": ">=7.1.0"
+  },
+  "author": "Hiroyuki Okada",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/xseignard/cordovarduino/issues"
+    "url": "https://github.com/okhiroyuki/cordova-plugin-usb-serial/issues"
   },
-  "homepage": "https://github.com/xseignard/cordovarduino#readme"
+  "homepage": "https://github.com/okhiroyuki/cordova-plugin-usb-serial#readme",
+  "devDependencies": {
+    "jshint": "^2.11.0"
+  }
 }
