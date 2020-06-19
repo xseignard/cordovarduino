@@ -10,7 +10,7 @@
 
     <!-- js module -->
     <js-module src="www/serial.js" name="Serial">
-        <clobbers target="window.serial" />
+        <clobbers target="window.cordova_serial" />
     </js-module>
 
     <!-- android -->

@@ -196,16 +196,22 @@ public class Serial extends CordovaPlugin {
 					// get the first one as there is a high chance that there is no more than one usb device attached to your android
 					driver = availableDrivers.get(0);
 					UsbDevice device = driver.getDevice();
-					// create the intent that will be used to get the permission
-					PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent(UsbBroadcastReceiver.USB_PERMISSION), 0);
-					// and a filter on the permission we ask
-					IntentFilter filter = new IntentFilter();
-					filter.addAction(UsbBroadcastReceiver.USB_PERMISSION);
-					// this broadcast receiver will handle the permission results
-					UsbBroadcastReceiver usbReceiver = new UsbBroadcastReceiver(callbackContext, cordova.getActivity());
-					cordova.getActivity().registerReceiver(usbReceiver, filter);
-					// finally ask for the permission
-					manager.requestPermission(device, pendingIntent);
+					// check if permission is already granted
+					if (manager.hasPermission(device)) {
+						Log.d(TAG, "Permission to connect to the device was already accepted!");
+						callbackContext.success("Permission to connect to the device was already accepted!");
+					} else {
+						// create the intent that will be used to get the permission
+						PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent(UsbBroadcastReceiver.USB_PERMISSION), 0);
+						// and a filter on the permission we ask
+						IntentFilter filter = new IntentFilter();
+						filter.addAction(UsbBroadcastReceiver.USB_PERMISSION);
+						// this broadcast receiver will handle the permission results
+						UsbBroadcastReceiver usbReceiver = new UsbBroadcastReceiver(callbackContext, cordova.getActivity());
+						cordova.getActivity().registerReceiver(usbReceiver, filter);
+						// finally ask for the permission
+						manager.requestPermission(device, pendingIntent);
+					}
 				}
 				else {
 					// no available drivers
