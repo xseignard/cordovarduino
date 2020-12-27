@@ -23,7 +23,7 @@
     "jshint": "node node_modules/jshint/bin/jshint www && node node_modules/jshint/bin/jshint src"
   },
   "engines": {
-    "cordova": ">=7.1.0"
+    "cordova": ">=10.0.0"
   },
   "author": "Hiroyuki Okada",
   "license": "MIT",
@@ -32,6 +32,6 @@
   },
   "homepage": "https://github.com/okhiroyuki/cordova-plugin-usb-serial#readme",
   "devDependencies": {
-    "jshint": "^2.11.0"
+    "jshint": "^2.12.0"
   }
 }
