@@ -1,6 +1,6 @@
 {
   "name": "@red-mobile/cordova-plugin-usb-serial",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cordova plugin to communicate with the android USB serial port",
   "cordova": {
     "id": "@red-mobile/cordova-plugin-usb-serial",

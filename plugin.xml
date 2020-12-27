@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-    id="cordova-plugin-usb-serial"
-    version="1.0.0">
+    id="@red-mobile/cordova-plugin-usb-serial"
+    version="1.0.1">
     <name>Serial</name>
     <description>Cordova plugin to communicate with the android USB serial port</description>
     <license>MIT</license>
     <keywords>serial,arduino</keywords>
+    <engines>
+        <engine name="cordova" version=">=10.0.0"/>
+    </engines>
+
 
     <!-- js module -->
     <js-module src="www/serial.js" name="Serial">

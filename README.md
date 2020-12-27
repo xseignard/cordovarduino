@@ -22,8 +22,7 @@ cordova plugin add @red-mobile/cordova-plugin-usb-serial
 ### unisntall it
 
 ```sh
-cordova plugin remove cordova-plugin-usb-serial
-npm uninstall @red-mobile/cordova-plugin-usb-serial
+cordova plugin remove @red-mobile/cordova-plugin-usb-serial
 ```
 
 ## How to use it
