@@ -423,7 +423,7 @@ public class Serial extends CordovaPlugin {
 	 * Observe serial connection
 	 */
 	private void startIoManager() {
-		if (driver != null) {
+		if (port != null) {
 			Log.i(TAG, "Starting io manager.");
 			mSerialIoManager = new SerialInputOutputManager(port, mListener);
 			mExecutor.submit(mSerialIoManager);
