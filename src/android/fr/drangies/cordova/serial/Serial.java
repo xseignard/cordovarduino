@@ -224,45 +224,50 @@ public class Serial extends CordovaPlugin {
 	private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
-				UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-				if (connection != null) {
-					// get first port and open it
-					port = driver.getPorts().get(0);
-					try {
-						// get connection params or the default values
-						baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
-						dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
-						stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
-						parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
-						setDTR = opts.has("dtr") && opts.getBoolean("dtr");
-						setRTS = opts.has("rts") && opts.getBoolean("rts");
-						// Sleep On Pause defaults to true
-						sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
-
-						port.open(connection);
-						port.setParameters(baudRate, dataBits, stopBits, parity);
-						if (setDTR) port.setDTR(true);
-						if (setRTS) port.setRTS(true);
-					}
-					catch (IOException  e) {
-						// deal with error
-						Log.d(TAG, e.getMessage());
-						callbackContext.error(e.getMessage());
-					}
-					catch (JSONException e) {
-						// deal with error
-						Log.d(TAG, e.getMessage());
-						callbackContext.error(e.getMessage());
-					}
-
-					Log.d(TAG, "Serial port opened!");
-					callbackContext.success("Serial port opened!");
+				if (driver == null) {
+					callbackContext.error("Request permissions before attempting opening port");
 				}
 				else {
-					Log.d(TAG, "Cannot connect to the device!");
-					callbackContext.error("Cannot connect to the device!");
+					UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+					if (connection != null) {
+						// get first port and open it
+						port = driver.getPorts().get(0);
+						try {
+							// get connection params or the default values
+							baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
+							dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
+							stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
+							parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+							setDTR = opts.has("dtr") && opts.getBoolean("dtr");
+							setRTS = opts.has("rts") && opts.getBoolean("rts");
+							// Sleep On Pause defaults to true
+							sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
+
+							port.open(connection);
+							port.setParameters(baudRate, dataBits, stopBits, parity);
+							if (setDTR) port.setDTR(true);
+							if (setRTS) port.setRTS(true);
+						}
+						catch (IOException  e) {
+							// deal with error
+							Log.d(TAG, e.getMessage());
+							callbackContext.error(e.getMessage());
+						}
+						catch (JSONException e) {
+							// deal with error
+							Log.d(TAG, e.getMessage());
+							callbackContext.error(e.getMessage());
+						}
+
+						Log.d(TAG, "Serial port opened!");
+						callbackContext.success("Serial port opened!");
+					}
+					else {
+						Log.d(TAG, "Cannot connect to the device!");
+						callbackContext.error("Cannot connect to the device!");
+					}
+					onDeviceStateChange();
 				}
-				onDeviceStateChange();
 			}
 		});
 	}
@@ -423,7 +428,7 @@ public class Serial extends CordovaPlugin {
 	 * Observe serial connection
 	 */
 	private void startIoManager() {
-		if (driver != null) {
+		if (port != null) {
 			Log.i(TAG, "Starting io manager.");
 			mSerialIoManager = new SerialInputOutputManager(port, mListener);
 			mExecutor.submit(mSerialIoManager);
