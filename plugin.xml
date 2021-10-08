@@ -22,7 +22,7 @@
         </config-file>
         <source-file src="src/android/fr/drangies/cordova/serial/Serial.java" target-dir="src/fr/drangies/cordova/serial" />
         <source-file src="src/android/fr/drangies/cordova/serial/UsbBroadcastReceiver.java" target-dir="src/fr/drangies/cordova/serial" />
-        <lib-file src="lib/usbseriallibrary.jar" arch="device" />
+        <framework src="src/android/plugin.gradle" custom="true" type="gradleReference"/>
     </platform>
 
     <!-- ubuntu -->

@@ -311,8 +311,8 @@ public class Serial extends CordovaPlugin {
 					try {
 						Log.d(TAG, data);
 						byte[] buffer = hexStringToByteArray(data);
-						int result = port.write(buffer, 1000);
-						callbackContext.success(result + " bytes written.");
+						port.write(buffer, 1000);
+						callbackContext.success(buffer.length + " bytes written.");
 					}
 					catch (IOException e) {
 						// deal with error
