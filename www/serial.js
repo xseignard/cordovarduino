@@ -66,6 +66,15 @@ var serial = {
             'registerReadCallback',
             []
         );
+    },
+    registerCloseCallback: function(successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'Serial',
+            'registerCloseCallback',
+            []
+        );
     }
 
 };
