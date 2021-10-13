@@ -483,6 +483,16 @@ public class Serial extends CordovaPlugin {
 	 */
 	private void onRunnerError(Exception error) {
 		Log.d(TAG, "Runner stopped.", error);
+		if (port != null) {
+			try {
+				port.close();
+			} catch (IOException e) {
+				Log.d(TAG, e.getMessage());
+			}
+			port = null;
+		}
+		onDeviceStateChange();
+
 		if( closeCallback != null ) {
 			PluginResult result = new PluginResult(PluginResult.Status.OK, error.getMessage());
 			result.setKeepCallback(true);
