@@ -50,6 +50,7 @@ public class Serial extends CordovaPlugin {
 	private static final String ACTION_WRITE_HEX = "writeSerialHex";
 	private static final String ACTION_CLOSE = "closeSerial";
 	private static final String ACTION_READ_CALLBACK = "registerReadCallback";
+	private static final String ACTION_CLOSE_CALLBACK = "registerCloseCallback";
 
 	// UsbManager instance to deal with permission and opening
 	private UsbManager manager;
@@ -69,19 +70,20 @@ public class Serial extends CordovaPlugin {
 	private boolean setDTR;
 	private boolean setRTS;
 	private boolean sleepOnPause;
-	
+
 	// callback that will be used to send back data to the cordova app
 	private CallbackContext readCallback;
-	
+	// callback that will be used to to report when the port is closed to the cordova app
+	private CallbackContext closeCallback;
+
 	// I/O manager to handle new incoming serial data
 	private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 	private SerialInputOutputManager mSerialIoManager;
 	private final SerialInputOutputManager.Listener mListener =
 			new SerialInputOutputManager.Listener() {
 				@Override
-				public void onRunError(Exception e) {
-					Log.d(TAG, "Runner stopped.");
-				}
+				public void onRunError(Exception e) { Serial.this.onRunnerError(e); }
+
 				@Override
 				public void onNewData(final byte[] data) {
 					Serial.this.updateReceivedData(data);
@@ -137,6 +139,11 @@ public class Serial extends CordovaPlugin {
 		// Register read callback
 		else if (ACTION_READ_CALLBACK.equals(action)) {
 			registerReadCallback(callbackContext);
+			return true;
+		}
+		// Register error callback
+		else if (ACTION_CLOSE_CALLBACK.equals(action)) {
+			registerCloseCallback(callbackContext);
 			return true;
 		}
 		// the action doesn't exist
@@ -470,7 +477,50 @@ public class Serial extends CordovaPlugin {
 		});
 	}
 
-	/** 
+	/**
+	 * Dispatch read data to javascript
+	 * @param error the error that occurred in the runner
+	 */
+	private void onRunnerError(Exception error) {
+		Log.d(TAG, "Runner stopped.", error);
+		if (port != null) {
+			try {
+				port.close();
+			} catch (IOException e) {
+				Log.d(TAG, e.getMessage());
+			}
+			port = null;
+		}
+		onDeviceStateChange();
+
+		if( closeCallback != null ) {
+			PluginResult result = new PluginResult(PluginResult.Status.OK, error.getMessage());
+			result.setKeepCallback(true);
+			closeCallback.sendPluginResult(result);
+		}
+	}
+
+	/**
+	 * Register callback for port close events
+	 * @param callbackContext the cordova {@link CallbackContext}
+	 */
+	private void registerCloseCallback(final CallbackContext callbackContext) {
+		Log.d(TAG, "Registering callback");
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				Log.d(TAG, "Registering Close Callback");
+				closeCallback = callbackContext;
+				JSONObject returnObj = new JSONObject();
+				addProperty(returnObj, "registerCloseCallback", "true");
+				// Keep the callback
+				PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, returnObj);
+				pluginResult.setKeepCallback(true);
+				callbackContext.sendPluginResult(pluginResult);
+			}
+		});
+	}
+
+	/**
 	 * Paused activity handler
 	 * @see org.apache.cordova.CordovaPlugin#onPause(boolean)
 	 */
