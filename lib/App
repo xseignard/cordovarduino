@@ -1,1 +1,11 @@
 
+CheckOneButton=No
+Action=Install
+OS= Android
+
+################### Android ####################
+Android-BootLoader = Android/u-boot_nand-ram256.bin
+Android-Kernel = Android/azImage_n43
+Android-CommandLine = root=ubi0:FriendlyARM-root ubi.mtd=2 rootfstype=ubifs  init=/linuxrc console=ttySAC0,115200 androidboot.console=s3c2410_serial0
+Android-RootFs-InstallImage = Android/rootfs_android.ubi
+Android-RootFs-RunImage = Android/rootfs_android.ext3
